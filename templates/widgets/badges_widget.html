@@ -1,0 +1,55 @@
+<!-- Student Badges Widget -->
+<div class="card border-warning">
+    <div class="card-header bg-warning text-dark">
+        <h6 class="mb-0">
+            <i class="fas fa-medal me-2"></i>Badges Earned
+            <span class="badge bg-dark float-end">{{ total_badges }}</span>
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if badges %}
+        <div class="row g-2">
+            {% for badge in badges[:6] %}
+            <div class="col-4 text-center">
+                <div class="badge-item">
+                    <i class="fas fa-medal fa-2x text-warning" title="{{ badge }}"></i>
+                    <small class="d-block text-truncate">{{ badge }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if total_badges > 6 %}
+        <div class="text-center mt-3">
+            <small class="text-muted">+{{ total_badges - 6 }} more badges</small>
+        </div>
+        {% endif %}
+        
+        <div class="text-center mt-3">
+            <a href="{{ url_for('gamification_bp.badge_gallery') }}" class="btn btn-sm btn-outline-warning">
+                <i class="fas fa-eye me-1"></i> View All
+            </a>
+        </div>
+        {% else %}
+        <div class="text-center text-muted">
+            <i class="fas fa-medal fa-3x mb-2" style="opacity: 0.3;"></i>
+            <p class="mb-0">No badges earned yet</p>
+            <small>Complete activities to earn badges!</small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.badge-item {
+    padding: 8px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    transition: transform 0.2s ease;
+}
+
+.badge-item:hover {
+    transform: scale(1.1);
+    background: #e9ecef;
+}
+</style>

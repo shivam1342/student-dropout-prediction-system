@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+
+{% block title %}Follow-up Reminders - EduCare{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-bell me-2"></i>Follow-up Reminders</h2>
+            <p class="text-muted">Interventions requiring follow-up action</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Reminders -->
+    {% if reminders %}
+    <div class="row">
+        {% for reminder in reminders %}
+        <div class="col-md-6 mb-4">
+            <div class="card border-warning">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Follow-up Due: {{ reminder.follow_up_date.strftime('%B %d, %Y') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Student Info -->
+                    <h6 class="mb-3">
+                        <i class="fas fa-user-graduate me-2"></i>
+                        <a href="{{ url_for('student_bp.student_profile', student_id=reminder.student_id) }}">
+                            {{ reminder.student.name }}
+                        </a>
+                    </h6>
+
+                    <!-- Original Intervention -->
+                    <div class="mb-3">
+                        <p class="mb-1">
+                            <strong>Original Intervention:</strong> {{ reminder.intervention_type }}
+                        </p>
+                        <p class="mb-1">
+                            <strong>Completed:</strong> {{ reminder.completed_date.strftime('%B %d, %Y') if reminder.completed_date else 'N/A' }}
+                        </p>
+                        <p class="mb-1">
+                            <strong>Priority:</strong>
+                            <span class="badge bg-{{ 'danger' if reminder.priority == 'Critical' else 'warning' if reminder.priority == 'High' else 'info' }}">
+                                {{ reminder.priority }}
+                            </span>
+                        </p>
+                    </div>
+
+                    <!-- Outcome -->
+                    {% if reminder.outcome %}
+                    <div class="mb-3">
+                        <strong>Outcome:</strong>
+                        <p class="mb-0">{{ reminder.outcome }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Effectiveness -->
+                    {% if reminder.effectiveness_rating %}
+                    <div class="mb-3">
+                        <strong>Effectiveness:</strong>
+                        <span class="badge bg-info">{{ reminder.effectiveness_rating }}/5</span>
+                        {% for i in range(reminder.effectiveness_rating) %}
+                        <i class="fas fa-star text-warning"></i>
+                        {% endfor %}
+                        {% for i in range(5 - reminder.effectiveness_rating) %}
+                        <i class="far fa-star text-warning"></i>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Notes -->
+                    {% if reminder.notes %}
+                    <div class="mb-3">
+                        <strong>Notes:</strong>
+                        <p class="mb-0 text-muted">{{ reminder.notes[:150] }}{% if reminder.notes|length > 150 %}...{% endif %}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Days Until Follow-up -->
+                    <div class="mb-3">
+                        {% set days_until = (reminder.follow_up_date - now).days %}
+                        {% if days_until < 0 %}
+                        <div class="alert alert-danger mb-0">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>OVERDUE</strong> by {{ -days_until }} day(s)
+                        </div>
+                        {% elif days_until == 0 %}
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>DUE TODAY</strong>
+                        </div>
+                        {% elif days_until <= 3 %}
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>Due in {{ days_until }} day(s)</strong>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Due in {{ days_until }} day(s)
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('intervention_bp.intervention_detail', intervention_id=reminder.id) }}" 
+                           class="btn btn-primary">
+                            <i class="fas fa-eye me-1"></i> View Details
+                        </a>
+                        <a href="{{ url_for('intervention_bp.create_intervention') }}?student_id={{ reminder.student_id }}&follow_up_from={{ reminder.id }}" 
+                           class="btn btn-success">
+                            <i class="fas fa-plus me-1"></i> Schedule Follow-up
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body">
+            <div class="alert alert-success mb-0">
+                <h5><i class="fas fa-check-circle me-2"></i>No Follow-ups Due</h5>
+                <p class="mb-0">There are no interventions requiring follow-up in the next 7 days.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ 'Edit' if intervention else 'Create' }} Intervention - EduCare{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-hands-helping me-2"></i>
+                    {{ 'Edit' if intervention else 'Create' }} Intervention
+                </h2>
+                <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+
+            <!-- Alert Context (if creating from alert) -->
+            {% if alert %}
+            <div class="alert alert-info">
+                <h5><i class="fas fa-bell me-2"></i>Creating from Alert</h5>
+                <p class="mb-1"><strong>Alert:</strong> {{ alert.title }}</p>
+                <p class="mb-1"><strong>Student:</strong> {{ alert.student.name }}</p>
+                <p class="mb-0"><strong>Severity:</strong> 
+                    <span class="badge bg-{{ 'danger' if alert.severity == 'Critical' else 'warning' if alert.severity == 'High' else 'info' }}">
+                        {{ alert.severity }}
+                    </span>
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Form -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" id="interventionForm">
+                        <!-- Student Selection -->
+                        <div class="mb-3">
+                            <label for="student_id" class="form-label">Student <span class="text-danger">*</span></label>
+                            {% if alert or intervention %}
+                            <input type="hidden" name="student_id" value="{{ alert.student_id if alert else intervention.student_id }}">
+                            <input type="text" class="form-control" 
+                                   value="{{ alert.student.name if alert else intervention.student.name }}" 
+                                   disabled>
+                            {% else %}
+                            <select class="form-select" id="student_id" name="student_id" required>
+                                <option value="">Select a student...</option>
+                                {% for student in students %}
+                                <option value="{{ student.id }}">{{ student.name }} ({{ student.student_id }})</option>
+                                {% endfor %}
+                            </select>
+                            {% endif %}
+                        </div>
+
+                        <!-- Intervention Type -->
+                        <div class="mb-3">
+                            <label for="intervention_type" class="form-label">Intervention Type <span class="text-danger">*</span></label>
+                            <select class="form-select" id="intervention_type" name="intervention_type" required>
+                                <option value="">Select type...</option>
+                                <option value="Academic Support" 
+                                    {% if (prefill and prefill.intervention_type == 'Academic') or (intervention and intervention.intervention_type == 'Academic Support') %}selected{% endif %}>
+                                    Academic Support
+                                </option>
+                                <option value="Counseling" 
+                                    {% if (prefill and prefill.intervention_type == 'Behavioral') or (intervention and intervention.intervention_type == 'Counseling') %}selected{% endif %}>
+                                    Counseling
+                                </option>
+                                <option value="Financial Aid" 
+                                    {% if (prefill and prefill.intervention_type == 'Financial') or (intervention and intervention.intervention_type == 'Financial Aid') %}selected{% endif %}>
+                                    Financial Aid
+                                </option>
+                                <option value="Mentoring" 
+                                    {% if intervention and intervention.intervention_type == 'Mentoring' %}selected{% endif %}>
+                                    Mentoring
+                                </option>
+                                <option value="Peer Support" 
+                                    {% if intervention and intervention.intervention_type == 'Peer Support' %}selected{% endif %}>
+                                    Peer Support
+                                </option>
+                                <option value="Parent Meeting" 
+                                    {% if intervention and intervention.intervention_type == 'Parent Meeting' %}selected{% endif %}>
+                                    Parent Meeting
+                                </option>
+                                <option value="Workshop" 
+                                    {% if intervention and intervention.intervention_type == 'Workshop' %}selected{% endif %}>
+                                    Workshop
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Priority -->
+                        <div class="mb-3">
+                            <label for="priority" class="form-label">Priority <span class="text-danger">*</span></label>
+                            <select class="form-select" id="priority" name="priority" required>
+                                <option value="">Select priority...</option>
+                                <option value="Critical" 
+                                    {% if (prefill and prefill.priority == 'Critical') or (intervention and intervention.priority == 'Critical') %}selected{% endif %}>
+                                    Critical
+                                </option>
+                                <option value="High" 
+                                    {% if (prefill and prefill.priority == 'High') or (intervention and intervention.priority == 'High') %}selected{% endif %}>
+                                    High
+                                </option>
+                                <option value="Medium" 
+                                    {% if (prefill and prefill.priority == 'Medium') or (intervention and intervention.priority == 'Medium') %}selected{% endif %}>
+                                    Medium
+                                </option>
+                                <option value="Low" 
+                                    {% if (prefill and prefill.priority == 'Low') or (intervention and intervention.priority == 'Low') %}selected{% endif %}>
+                                    Low
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Scheduled Date -->
+                        <div class="mb-3">
+                            <label for="scheduled_date" class="form-label">Scheduled Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="scheduled_date" name="scheduled_date" 
+                                   value="{{ intervention.scheduled_date.strftime('%Y-%m-%d') if intervention and intervention.scheduled_date else '' }}"
+                                   min="{{ today }}" required>
+                        </div>
+
+                        <!-- Assigned To -->
+                        <div class="mb-3">
+                            <label for="assigned_to" class="form-label">Assigned To</label>
+                            <input type="text" class="form-control" id="assigned_to" name="assigned_to" 
+                                   value="{{ intervention.assigned_to if intervention else '' }}"
+                                   placeholder="e.g., Dr. Smith, Counselor Jones">
+                            <small class="form-text text-muted">Name of person responsible for this intervention</small>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="description" name="description" rows="5" required>{{ prefill.description if prefill else (intervention.description if intervention else '') }}</textarea>
+                            <small class="form-text text-muted">Detailed description of the intervention plan</small>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> {{ 'Update' if intervention else 'Create' }} Intervention
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Set minimum date to today
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('scheduled_date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+    
+    // Set default date to tomorrow if creating new
+    {% if not intervention %}
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dateInput.value = tomorrow.toISOString().split('T')[0];
+    {% endif %}
+});
+
+// Form validation
+document.getElementById('interventionForm').addEventListener('submit', function(e) {
+    const studentId = document.querySelector('[name="student_id"]').value;
+    const type = document.getElementById('intervention_type').value;
+    const priority = document.getElementById('priority').value;
+    const date = document.getElementById('scheduled_date').value;
+    const description = document.getElementById('description').value;
+    
+    if (!studentId || !type || !priority || !date || !description) {
+        e.preventDefault();
+        alert('Please fill in all required fields');
+        return false;
+    }
+});
+</script>
+{% endblock %}

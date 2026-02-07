@@ -1,0 +1,296 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ student.name }} - Gamification Profile{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>
+                <i class="fas fa-gamepad me-2 text-primary"></i>
+                Gamification Profile: {{ student.name }}
+            </h2>
+            <p class="text-muted">Achievements, badges, and progress tracking</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('student_bp.student_profile', student_id=student.id) }}" 
+               class="btn btn-outline-primary">
+                <i class="fas fa-user me-1"></i> Student Profile
+            </a>
+            <a href="{{ url_for('gamification_bp.leaderboard') }}" 
+               class="btn btn-outline-secondary">
+                <i class="fas fa-trophy me-1"></i> Leaderboard
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Stats and Badges -->
+        <div class="col-md-8">
+            <!-- Points Overview Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Points Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col">
+                            <h2 class="text-primary">{{ "{:,}".format(profile.total_points) }}</h2>
+                            <p class="text-muted mb-0">Total Points</p>
+                        </div>
+                        <div class="col">
+                            <h2 class="text-info">{{ profile.level }}</h2>
+                            <p class="text-muted mb-0">Current Level</p>
+                        </div>
+                        <div class="col">
+                            <h2 class="text-warning">{{ rank }}</h2>
+                            <p class="text-muted mb-0">Rank</p>
+                        </div>
+                        <div class="col">
+                            <h2 class="text-danger">{{ profile.current_streak }}</h2>
+                            <p class="text-muted mb-0">Day Streak</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level Progress -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-layer-group me-2"></i>Level {{ profile.level }} Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><strong>Level {{ profile.level }}</strong></span>
+                        <span><strong>Level {{ level_progress.next_level }}</strong></span>
+                    </div>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-gradient-success progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: {{ level_progress.percentage }}%;" 
+                             aria-valuenow="{{ level_progress.percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ level_progress.percentage }}%
+                        </div>
+                    </div>
+                    <div class="mt-2 text-center">
+                        <small class="text-muted">
+                            {{ "{:,}".format(level_progress.current_points) }} / {{ "{:,}".format(level_progress.points_needed) }} points
+                            <span class="text-primary">({{ "{:,}".format(level_progress.points_to_next) }} more to next level)</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Points Breakdown -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Points Breakdown by Category
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for category, points in points_breakdown.items() %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>
+                                <i class="fas fa-{{ 'graduation-cap' if category == 'Academic' else 'calendar-check' if category == 'Attendance' else 'hand-paper' if category == 'Participation' else 'heart' if category == 'Engagement' else 'users' }} me-2"></i>
+                                {{ category }}
+                            </span>
+                            <strong>{{ "{:,}".format(points) }} points</strong>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            {% set percentage = (points / profile.total_points * 100)|round|int if profile.total_points > 0 else 0 %}
+                            <div class="progress-bar bg-{{ 'primary' if category == 'Academic' else 'success' if category == 'Attendance' else 'warning' if category == 'Participation' else 'info' if category == 'Engagement' else 'secondary' }}" 
+                                 role="progressbar" 
+                                 style="width: {{ percentage }}%;">
+                                {{ percentage }}%
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Achievement Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Achievement Timeline
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if timeline %}
+                    <div class="timeline">
+                        {% for event in timeline %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-{{ 'success' if event.type == 'badge' else 'primary' if event.type == 'level' else 'warning' }}"></div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        {% if event.type == 'badge' %}
+                                        <i class="fas fa-medal text-warning me-2"></i>
+                                        <strong>Badge Earned: {{ event.title }}</strong>
+                                        {% elif event.type == 'level' %}
+                                        <i class="fas fa-level-up-alt text-primary me-2"></i>
+                                        <strong>Level Up: {{ event.title }}</strong>
+                                        {% else %}
+                                        <i class="fas fa-star text-warning me-2"></i>
+                                        <strong>{{ event.title }}</strong>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">{{ event.date }}</small>
+                                </div>
+                                <p class="mb-0 text-muted">{{ event.description }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No achievements yet. Keep engaging to earn badges and level up!
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Badges and Ranking -->
+        <div class="col-md-4">
+            <!-- Current Streak -->
+            <div class="card mb-4 border-danger">
+                <div class="card-body text-center">
+                    <i class="fas fa-fire fa-3x text-danger mb-3"></i>
+                    <h2 class="mb-0">{{ profile.current_streak }}</h2>
+                    <p class="text-muted mb-1">Day Streak</p>
+                    <small class="text-muted">
+                        Longest: {{ profile.longest_streak }} days
+                    </small>
+                </div>
+            </div>
+
+            <!-- Badges Earned -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-medal me-2"></i>Badges Earned
+                        <span class="badge bg-dark float-end">{{ (profile.badges_earned|length) if profile.badges_earned else 0 }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if profile.badges_earned %}
+                    <div class="row">
+                        {% for badge in profile.badges_earned %}
+                        <div class="col-4 text-center mb-3">
+                            <div class="badge-display">
+                                <i class="fas fa-star fa-3x text-warning" title="{{ badge }}"></i>
+                                <small class="d-block mt-1">{{ badge }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-medal fa-3x mb-2" style="opacity: 0.3;"></i>
+                        <p>No badges earned yet</p>
+                    </div>
+                    {% endif %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('gamification_bp.badge_gallery') }}" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-eye me-1"></i> View All Badges
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Ranking -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-ranking-star me-2"></i>Leaderboard Ranking
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        {% if rank <= 3 %}
+                        <i class="fas fa-trophy fa-4x text-warning"></i>
+                        {% else %}
+                        <i class="fas fa-ranking-star fa-4x text-primary"></i>
+                        {% endif %}
+                        <h1 class="mt-2">#{{ rank }}</h1>
+                        <p class="text-muted">Current Rank</p>
+                    </div>
+                    <div class="text-center">
+                        <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-primary">
+                            <i class="fas fa-trophy me-1"></i> View Full Leaderboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -26px;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.badge-display {
+    padding: 10px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    transition: transform 0.3s ease;
+}
+
+.badge-display:hover {
+    transform: scale(1.1);
+}
+</style>
+{% endblock %}

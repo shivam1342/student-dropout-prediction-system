@@ -1,0 +1,235 @@
+{% extends "layout.html" %}
+
+{% block title %}Complete Intervention - EduCare{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-check-circle me-2"></i>Complete Intervention
+                </h2>
+                <a href="{{ url_for('intervention_bp.intervention_detail', intervention_id=intervention.id) }}" 
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back
+                </a>
+            </div>
+
+            <!-- Intervention Summary -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Intervention Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Student:</strong> {{ intervention.student.name }}</p>
+                            <p class="mb-1"><strong>Type:</strong> {{ intervention.intervention_type }}</p>
+                            <p class="mb-0"><strong>Priority:</strong> 
+                                <span class="badge bg-{{ 'danger' if intervention.priority == 'Critical' else 'warning' if intervention.priority == 'High' else 'info' }}">
+                                    {{ intervention.priority or 'Medium' }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Scheduled:</strong> {{ intervention.scheduled_date.strftime('%B %d, %Y') if intervention.scheduled_date else 'N/A' }}</p>
+                            <p class="mb-1"><strong>Assigned To:</strong> {{ intervention.assigned_to or 'Unassigned' }}</p>
+                            <p class="mb-0"><strong>Description:</strong> {{ intervention.description[:100] }}...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completion Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Completion Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="completionForm">
+                        <!-- Outcome -->
+                        <div class="mb-3">
+                            <label for="outcome" class="form-label">Outcome <span class="text-danger">*</span></label>
+                            <select class="form-select" id="outcome" name="outcome" required>
+                                <option value="">Select outcome...</option>
+                                <option value="Successful">Successful - Goals Achieved</option>
+                                <option value="Partially Successful">Partially Successful - Some Progress Made</option>
+                                <option value="Unsuccessful">Unsuccessful - No Significant Progress</option>
+                                <option value="Student No-Show">Student No-Show</option>
+                                <option value="Rescheduled">Rescheduled</option>
+                            </select>
+                            <small class="form-text text-muted">Overall outcome of the intervention</small>
+                        </div>
+
+                        <!-- Effectiveness Rating -->
+                        <div class="mb-3">
+                            <label for="effectiveness_rating" class="form-label">
+                                Effectiveness Rating <span class="text-danger">*</span>
+                            </label>
+                            <div class="d-flex align-items-center">
+                                <input type="range" class="form-range me-3" id="effectiveness_rating" 
+                                       name="effectiveness_rating" min="1" max="5" value="3" 
+                                       oninput="updateRatingDisplay(this.value)">
+                                <div id="rating-display" style="min-width: 150px;">
+                                    <span id="rating-stars">★★★☆☆</span>
+                                    <span id="rating-text" class="ms-2 text-muted">(3/5)</span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Rate the effectiveness of this intervention (1-5)</small>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="5" 
+                                      placeholder="Detailed notes about the intervention outcome, student response, observations, etc."></textarea>
+                            <small class="form-text text-muted">Detailed notes about the intervention session</small>
+                        </div>
+
+                        <!-- Follow-up Required -->
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="follow_up_required" 
+                                       name="follow_up_required" onchange="toggleFollowUpDate()">
+                                <label class="form-check-label" for="follow_up_required">
+                                    <strong>Follow-up Required</strong>
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">Check if additional follow-up is needed</small>
+                        </div>
+
+                        <!-- Follow-up Date (conditional) -->
+                        <div class="mb-3" id="follow_up_date_group" style="display: none;">
+                            <label for="follow_up_date" class="form-label">Follow-up Date</label>
+                            <input type="date" class="form-control" id="follow_up_date" name="follow_up_date">
+                            <small class="form-text text-muted">When should the follow-up occur?</small>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="border-top pt-3 mt-4">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{{ url_for('intervention_bp.intervention_detail', intervention_id=intervention.id) }}" 
+                                   class="btn btn-secondary">
+                                    <i class="fas fa-times me-1"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check me-1"></i> Complete Intervention
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Completion Tips -->
+            <div class="card mt-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Completion Tips</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Be specific about what was accomplished during the intervention</li>
+                        <li>Note any student concerns or barriers to progress</li>
+                        <li>Document any resources provided or referrals made</li>
+                        <li>Rate effectiveness based on student engagement and goal achievement</li>
+                        <li>Schedule follow-up if ongoing support is needed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update rating display
+function updateRatingDisplay(value) {
+    const stars = '★'.repeat(value) + '☆'.repeat(5 - value);
+    document.getElementById('rating-stars').textContent = stars;
+    document.getElementById('rating-text').textContent = `(${value}/5)`;
+    
+    // Update color based on rating
+    const starsElement = document.getElementById('rating-stars');
+    if (value >= 4) {
+        starsElement.style.color = '#28a745'; // Green
+    } else if (value >= 3) {
+        starsElement.style.color = '#ffc107'; // Yellow
+    } else {
+        starsElement.style.color = '#dc3545'; // Red
+    }
+}
+
+// Toggle follow-up date field
+function toggleFollowUpDate() {
+    const checkbox = document.getElementById('follow_up_required');
+    const dateGroup = document.getElementById('follow_up_date_group');
+    const dateInput = document.getElementById('follow_up_date');
+    
+    if (checkbox.checked) {
+        dateGroup.style.display = 'block';
+        dateInput.required = true;
+        
+        // Set default date to 1 week from now
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        dateInput.value = nextWeek.toISOString().split('T')[0];
+    } else {
+        dateGroup.style.display = 'none';
+        dateInput.required = false;
+        dateInput.value = '';
+    }
+}
+
+// Form validation
+document.getElementById('completionForm').addEventListener('submit', function(e) {
+    const outcome = document.getElementById('outcome').value;
+    const rating = document.getElementById('effectiveness_rating').value;
+    const followUpRequired = document.getElementById('follow_up_required').checked;
+    const followUpDate = document.getElementById('follow_up_date').value;
+    
+    if (!outcome || !rating) {
+        e.preventDefault();
+        alert('Please fill in all required fields');
+        return false;
+    }
+    
+    if (followUpRequired && !followUpDate) {
+        e.preventDefault();
+        alert('Please specify a follow-up date');
+        return false;
+    }
+    
+    // Confirm submission
+    if (!confirm('Are you sure you want to mark this intervention as completed?')) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+// Initialize rating display
+document.addEventListener('DOMContentLoaded', function() {
+    updateRatingDisplay(3);
+    
+    // Set minimum date for follow-up to today
+    const followUpDate = document.getElementById('follow_up_date');
+    const today = new Date().toISOString().split('T')[0];
+    followUpDate.setAttribute('min', today);
+});
+</script>
+
+<style>
+#rating-stars {
+    font-size: 24px;
+    color: #ffc107;
+}
+
+.form-range::-webkit-slider-thumb {
+    background: #0d6efd;
+}
+
+.form-range::-moz-range-thumb {
+    background: #0d6efd;
+}
+</style>
+{% endblock %}

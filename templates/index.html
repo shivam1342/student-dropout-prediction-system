@@ -1,0 +1,338 @@
+{% extends 'layout.html' %}
+{% block title %}EduCare Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-tachometer-alt me-2"></i>EduCare Dashboard</h1>
+    <div>
+        <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn btn-sm btn-warning">
+            <i class="fas fa-bell"></i> Alerts
+        </a>
+        <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn btn-sm btn-info">
+            <i class="fas fa-hands-helping"></i> Interventions
+        </a>
+        <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-sm btn-success">
+            <i class="fas fa-trophy"></i> Leaderboard
+        </a>
+    </div>
+</div>
+
+<!-- Primary Summary Cards -->
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Students</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_students }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">At-Risk Percentage</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.at_risk_percentage }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Active Alerts</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.alerts.total_active if stats.alerts else 0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-bell fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Interventions</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.interventions.total if stats.interventions else 0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-hands-helping fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Breakdown -->
+{% if stats.alerts %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-warning">
+                    <i class="fas fa-bell me-2"></i>Alert Overview
+                </h6>
+                <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn btn-sm btn-outline-warning">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="mb-2">
+                            <i class="fas fa-exclamation-circle fa-2x text-danger"></i>
+                        </div>
+                        <h3 class="text-danger">{{ stats.alerts.by_severity.critical }}</h3>
+                        <p class="text-muted mb-0">Critical</p>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-2">
+                            <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                        </div>
+                        <h3 class="text-warning">{{ stats.alerts.by_severity.high }}</h3>
+                        <p class="text-muted mb-0">High</p>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-2">
+                            <i class="fas fa-info-circle fa-2x text-info"></i>
+                        </div>
+                        <h3 class="text-info">{{ stats.alerts.by_severity.medium }}</h3>
+                        <p class="text-muted mb-0">Medium</p>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-2">
+                            <i class="fas fa-check-circle fa-2x text-success"></i>
+                        </div>
+                        <h3 class="text-success">{{ stats.alerts.by_severity.low }}</h3>
+                        <p class="text-muted mb-0">Low</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ML Model Comparison & Gamification Leaderboard -->
+<div class="row">
+    <!-- ML Model Comparison -->
+    {% if model_comparison %}
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-brain me-2"></i>ML Model Performance
+                </h6>
+                <a href="{{ url_for('main_bp.evaluation') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-chart-line"></i> View Detailed Analysis
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Accuracy</th>
+                                <th>AUC-ROC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for model_name, metrics in model_comparison.items() %}
+                            <tr>
+                                <td><strong>{{ model_name }}</strong></td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if metrics.accuracy > 0.85 else ('info' if metrics.accuracy > 0.80 else 'secondary') }} text-white">
+                                        {{ "%.2f"|format(metrics.accuracy * 100) }}%
+                                    </span>
+                                </td>
+                                <td><strong style="color: #4e73df; font-size: 1.1em;">{{ "%.4f"|format(metrics.auc) }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i> 
+                    All models trained on multi-modal data (Academic, Financial, Behavioral, LMS)
+                </small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Top Gamification Leaderboard -->
+    {% if top_gamification %}
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-success">
+                    <i class="fas fa-trophy me-2"></i>Top 5 Leaderboard
+                </h6>
+                <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-sm btn-outline-success">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for profile in top_gamification %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-{{ 'warning' if loop.index == 1 else ('light' if loop.index == 2 else 'secondary') }} me-2" style="width: 30px;">
+                                {{ loop.index }}
+                            </span>
+                            <div>
+                                <a href="{{ url_for('student_bp.student_profile', student_id=profile.student_id) }}" class="font-weight-bold">
+                                    {{ profile.student.name if profile.student else 'Unknown' }}
+                                </a>
+                                <br>
+                                <small class="text-muted">Level {{ profile.level }} • {{ profile.current_streak }}🔥 streak</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="mb-0 text-primary">{{ profile.total_points }}</h5>
+                            <small class="text-muted">points</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Charts and High-Risk Students -->
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Dropout Risk Trend</h6>
+            </div>
+            <div class="card-body">
+                <canvas 
+                    id="riskTrendChart" 
+                    data-labels='{{ chart_labels|tojson }}' 
+                    data-values='{{ chart_data|tojson }}'
+                ></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-danger">Top 5 High-Risk Students</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Risk Score</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in top_high_risk %}
+                            <tr>
+                                <td>{{ student.name }}</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-danger progress-bar-dynamic" role="progressbar" data-width="{{ student.latest_prediction.risk_score }}" aria-valuenow="{{ student.latest_prediction.risk_score }}" aria-valuemin="0" aria-valuemax="100">{{ student.latest_prediction.risk_score }}%</div>
+                                    </div>
+                                </td>
+                                <td><a href="{{ url_for('student_bp.student_profile', student_id=student.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No high-risk students found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Links Section -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-info">
+                    <i class="fas fa-link me-2"></i>Quick Links
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('student_bp.list_students') }}" class="btn btn-outline-primary btn-block">
+                            <i class="fas fa-users fa-2x mb-2 d-block"></i>
+                            <span class="d-block">View All Students</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn btn-outline-warning btn-block">
+                            <i class="fas fa-bell fa-2x mb-2 d-block"></i>
+                            <span class="d-block">Alert Dashboard</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn btn-outline-info btn-block">
+                            <i class="fas fa-hands-helping fa-2x mb-2 d-block"></i>
+                            <span class="d-block">Interventions</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('main_bp.chatbot_page') }}" class="btn btn-outline-success btn-block">
+                            <i class="fas fa-robot fa-2x mb-2 d-block"></i>
+                            <span class="d-block">AI Chatbot</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Chart logic
+        const riskTrendCanvas = document.getElementById('riskTrendChart');
+        if (riskTrendCanvas) {
+            const riskTrendCtx = riskTrendCanvas.getContext('2d');
+            const chartLabels = JSON.parse(riskTrendCanvas.dataset.labels);
+            const chartData = JSON.parse(riskTrendCanvas.dataset.values);
+            createLineChart(riskTrendCtx, chartLabels, chartData, 'Dropout Risk Score');
+        }
+
+        // Progress bar logic to fix linter errors
+        const progressBars = document.querySelectorAll('.progress-bar-dynamic');
+        progressBars.forEach(bar => {
+            const width = bar.getAttribute('data-width');
+            bar.style.width = width + '%';
+        });
+    });
+</script>
+{% endblock %}

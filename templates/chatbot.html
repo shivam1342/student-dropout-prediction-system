@@ -1,0 +1,410 @@
+{% extends 'layout.html' %}
+{% block title %}Chatbot{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <style>
+    /* Reset and Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Chat Container */
+    .chat-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      height: calc(100vh - 200px);
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    /* Chat Header */
+    .chat-header {
+      padding: 1.75rem 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .header-content h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem 0;
+    }
+
+    .header-content p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    /* Chat Box */
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      background: #f8f9fa;
+    }
+
+    /* Scrollbar */
+    #chat-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #chat-box::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #chat-box::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 3px;
+    }
+
+    #chat-box::-webkit-scrollbar-thumb:hover {
+      background: #a0aec0;
+    }
+
+    /* Message Wrapper */
+    .message-wrapper {
+      display: flex;
+      width: 100%;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .message-wrapper.user {
+      justify-content: flex-end;
+    }
+
+    .message-wrapper.bot {
+      justify-content: flex-start;
+    }
+
+    /* Message Content */
+    .message-content {
+      max-width: 70%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Message Text */
+    .message-text {
+      padding: 1rem 1.25rem;
+      border-radius: 16px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      word-wrap: break-word;
+    }
+
+    .user .message-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+    }
+
+    .bot .message-text {
+      background: #ffffff;
+      color: #2d3748;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Input Area */
+    .input-area {
+      padding: 1.5rem 2rem;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      max-width: 100%;
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 1rem 1.25rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      color: #2d3748;
+      background: #ffffff;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    #userInput:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #userInput::placeholder {
+      color: #a0aec0;
+    }
+
+    /* Send Button */
+    .input-area button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .input-area button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .input-area button:active {
+      transform: translateY(0);
+    }
+
+    .input-area button svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator .message-text {
+      padding: 0.75rem 1.25rem;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 0.375rem;
+      align-items: center;
+    }
+
+    .typing-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #a0aec0;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        opacity: 0.3;
+        transform: translateY(0);
+      }
+      30% {
+        opacity: 1;
+        transform: translateY(-4px);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .chat-container {
+        margin: 1rem;
+        height: calc(100vh - 150px);
+        border-radius: 8px;
+      }
+      
+      .chat-header,
+      .input-area {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+      }
+      
+      #chat-box {
+        padding: 1.5rem 1.25rem;
+      }
+      
+      .message-content {
+        max-width: 85%;
+      }
+
+      .header-content h1 {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="header-content">
+      <h1>Virtual Counsellor</h1>
+      <p>Here to listen and help</p>
+    </div>
+  </div>
+  
+  <div id="chat-box">
+    <div class="message-wrapper bot">
+      <div class="message-content">
+        <div class="message-text">Hi there! How can I help you today?</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="input-area">
+    <div class="input-wrapper">
+      <input 
+        id="userInput" 
+        type="text" 
+        placeholder="Type your message..." 
+        onkeydown="if(event.key==='Enter') sendMessage()" 
+      />
+      <!-- Hidden input for student_id -->
+      <input type="hidden" id="studentId" value="{{ student.id if student else '' }}">
+      <button onclick="sendMessage()" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+async function sendMessage() {
+  const userInput = document.getElementById("userInput");
+  const message = userInput.value.trim();
+  if (!message) return;
+
+  const chatBox = document.getElementById("chat-box");
+
+  // Display user message
+  const userWrapper = document.createElement("div");
+  userWrapper.className = "message-wrapper user";
+  userWrapper.innerHTML = `
+    <div class="message-content">
+      <div class="message-text">${escapeHtml(message)}</div>
+    </div>
+  `;
+  chatBox.appendChild(userWrapper);
+
+  // Clear input and scroll
+  userInput.value = "";
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // Show typing indicator
+  const typingWrapper = document.createElement("div");
+  typingWrapper.className = "message-wrapper bot typing-indicator";
+  typingWrapper.innerHTML = `
+    <div class="message-content">
+      <div class="message-text">
+        <div class="typing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  `;
+  chatBox.appendChild(typingWrapper);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  try {
+    const studentId = document.getElementById("studentId").value;
+
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ message, student_id: studentId || null })
+    });
+
+    // Remove typing indicator
+    typingWrapper.remove();
+
+    if (!res.ok) {
+      // Try to get error message from response
+      let errorMessage = "Sorry, something went wrong. Please try again.";
+      try {
+        const errorData = await res.json();
+        if (errorData.reply) {
+          errorMessage = errorData.reply;
+        }
+      } catch (e) {
+        // If we can't parse the error, use a default message
+        errorMessage = `Error ${res.status}: ${res.statusText || "Please try again"}`;
+      }
+      throw new Error(errorMessage);
+    }
+
+    const data = await res.json();
+
+    // Display bot response
+    const botWrapper = document.createElement("div");
+    botWrapper.className = "message-wrapper bot";
+    botWrapper.innerHTML = `
+      <div class="message-content">
+        <div class="message-text">${escapeHtml(data.reply || "I'm sorry, I didn't understand that. Could you rephrase?")}</div>
+      </div>
+    `;
+    chatBox.appendChild(botWrapper);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+  } catch (error) {
+    // Remove typing indicator
+    typingWrapper.remove();
+    
+    console.error("Error sending message:", error);
+    const errorWrapper = document.createElement("div");
+    errorWrapper.className = "message-wrapper bot";
+    // Show the actual error message if available, otherwise show generic message
+    const errorMessage = error.message && error.message !== "Failed to fetch" 
+      ? error.message 
+      : "Sorry, something went wrong. Please check your connection and try again.";
+    errorWrapper.innerHTML = `
+      <div class="message-content">
+        <div class="message-text">${escapeHtml(errorMessage)}</div>
+      </div>
+    `;
+    chatBox.appendChild(errorWrapper);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+</script>
+{% endblock %}
