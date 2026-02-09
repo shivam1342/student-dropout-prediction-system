@@ -1,0 +1,39 @@
+/* Custom Styles for AI Counselling System */
+
+body {
+    background-color: #f8f9fc; /* Light gray background */
+}
+
+.navbar {
+    margin-bottom: 1.5rem;
+}
+
+/* Custom card border colors */
+.card.border-left-primary {
+    border-left: .25rem solid #4e73df !important;
+}
+
+.card.border-left-danger {
+    border-left: .25rem solid #e74a3b !important;
+}
+
+.card.border-left-warning {
+    border-left: .25rem solid #f6c23e !important;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+.shadow {
+    box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;
+}
+
+/* Chatbot styling */
+#chat-window {
+    background-color: #fff;
+}

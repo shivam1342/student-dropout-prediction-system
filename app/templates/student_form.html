@@ -1,0 +1,67 @@
+{% extends 'layout.html' %}
+{% block title %}{{ form_action }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4 text-gray-800">{{ form_action }}</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ student.name if student else '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ student.email if student else '' }}" required>
+                </div>
+            </div>
+            <hr>
+            <h5 class="mb-3">Demographic & Academic Data</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="age_at_enrollment" class="form-label">Age at Enrollment</label>
+                    <input type="number" class="form-control" id="age_at_enrollment" name="age_at_enrollment" value="{{ student.age_at_enrollment if student else '20' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="previous_qualification" class="form-label">Previous Qualification (Code)</label>
+                    <input type="number" class="form-control" id="previous_qualification" name="previous_qualification" value="{{ student.previous_qualification if student else '1' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="curricular_units_1st_sem_grade" class="form-label">1st Semester Grade</label>
+                    <input type="number" step="0.1" class="form-control" id="curricular_units_1st_sem_grade" name="curricular_units_1st_sem_grade" value="{{ student.curricular_units_1st_sem_grade if student else '13.5' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="curricular_units_2nd_sem_grade" class="form-label">2nd Semester Grade</label>
+                    <input type="number" step="0.1" class="form-control" id="curricular_units_2nd_sem_grade" name="curricular_units_2nd_sem_grade" value="{{ student.curricular_units_2nd_sem_grade if student else '12.8' }}" required>
+                </div>
+            </div>
+            <hr>
+            <h5 class="mb-3">Status & Context</h5>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="scholarship_holder" name="scholarship_holder" {% if student and student.scholarship_holder %}checked{% endif %}>
+                        <label class="form-check-label" for="scholarship_holder">Scholarship Holder</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="debtor" name="debtor" {% if student and student.debtor %}checked{% endif %}>
+                        <label class="form-check-label" for="debtor">Debtor</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="tuition_fees_up_to_date" name="tuition_fees_up_to_date" {% if student and student.tuition_fees_up_to_date %}checked{% endif %}>
+                        <label class="form-check-label" for="tuition_fees_up_to_date">Tuition Fees Up to Date</label>
+                    </div>
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label for="gdp" class="form-label">GDP (Contextual)</label>
+                    <input type="number" step="0.01" class="form-control" id="gdp" name="gdp" value="{{ student.gdp if student else '0.79' }}" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{{ url_for('student_bp.list_students') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

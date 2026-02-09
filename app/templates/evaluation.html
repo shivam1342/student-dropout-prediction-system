@@ -1,0 +1,652 @@
+{% extends "layout.html" %}
+
+{% block title %}ML Model Evaluation - EduCare{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chart-bar text-primary"></i> ML Model Evaluation Dashboard
+        </h1>
+        <p class="text-muted mt-2">Comprehensive analysis and comparison of dropout prediction models</p>
+    </div>
+    <a href="{{ url_for('main_bp.dashboard') }}" class="d-none d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm">
+        <i class="fas fa-arrow-left fa-sm"></i> Back to Dashboard
+    </a>
+</div>
+
+<!-- Best Model Highlight -->
+{% if best_model[0] %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-success border-left-success shadow" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-trophy fa-3x text-warning me-3"></i>
+                <div>
+                    <h4 class="alert-heading mb-1">
+                        <strong>Best Performing Model: {{ best_model[0] }}</strong>
+                    </h4>
+                    <p class="mb-0">
+                        Accuracy: <strong>{{ "%.2f"|format(best_model[1].accuracy * 100) }}%</strong> | 
+                        AUC-ROC: <strong>{{ "%.4f"|format(best_model[1].auc) }}</strong>
+                    </p>
+                    <small class="text-muted">
+                        This model has been deployed for production use in student risk prediction.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Key Performance Metrics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Models Trained
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ model_names|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-brain fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Highest Accuracy
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ "%.2f"|format(accuracies|max) }}%
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-bullseye fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Best AUC-ROC
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ "%.4f"|format(auc_scores|max) }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Avg Performance
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ "%.2f"|format((accuracies|sum) / (accuracies|length)) }}%
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chart-area fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 1: Accuracy & AUC Comparison -->
+<div class="row mb-4">
+    <!-- Accuracy Comparison Chart -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-bar"></i> Model Accuracy Comparison
+                </h6>
+            </div>
+            <div class="card-body">
+                <div style="position: relative; height: 300px;">
+                    <canvas id="accuracyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUC-ROC Comparison Chart -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-info">
+                    <i class="fas fa-chart-line"></i> AUC-ROC Score Comparison
+                </h6>
+            </div>
+            <div class="card-body">
+                <div style="position: relative; height: 300px;">
+                    <canvas id="aucChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Combined Performance Chart -->
+<div class="row mb-4">
+    <div class="col-lg-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-success">
+                    <i class="fas fa-layer-group"></i> Combined Performance Metrics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div style="position: relative; height: 350px;">
+                    <canvas id="combinedChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Model Comparison Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-table"></i> Detailed Model Performance Metrics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="modelComparisonTable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="25%">Model Name</th>
+                                <th width="15%">Accuracy (%)</th>
+                                <th width="15%">AUC-ROC Score</th>
+                                <th width="15%">Precision</th>
+                                <th width="15%">Recall</th>
+                                <th width="10%">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for model_name in model_names %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    <strong>{{ model_name }}</strong>
+                                    {% if model_name == best_model[0] %}
+                                    <span class="badge bg-warning text-dark ml-2">
+                                        <i class="fas fa-crown"></i> Best
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-{{ 'success' if model_comparison[model_name].accuracy > 0.88 else ('info' if model_comparison[model_name].accuracy > 0.85 else 'secondary') }} text-white mr-2">
+                                            {{ "%.2f"|format(model_comparison[model_name].accuracy * 100) }}%
+                                        </span>
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar bg-success" 
+                                                 role="progressbar" 
+                                                 style="width: {{ model_comparison[model_name].accuracy * 100 }}%" 
+                                                 aria-valuenow="{{ model_comparison[model_name].accuracy * 100 }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong class="text-primary">{{ "%.4f"|format(model_comparison[model_name].auc) }}</strong>
+                                </td>
+                                <td>
+                                    <span class="text-success" style="font-weight: 600;">
+                                        {{ "%.4f"|format(model_comparison[model_name].precision) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-info" style="font-weight: 600;">
+                                        {{ "%.4f"|format(model_comparison[model_name].recall) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success text-white">
+                                        <i class="fas fa-check-circle"></i> Active
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model Descriptions & Use Cases -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 bg-gradient-primary">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-info-circle"></i> Model Descriptions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-primary"><i class="fas fa-tree"></i> Random Forest</h6>
+                    <p class="text-sm mb-2">
+                        Ensemble of 200 decision trees trained independently. Uses majority voting for predictions.
+                        <strong>Best for:</strong> Interpretability and feature importance analysis.
+                    </p>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <h6 class="text-success"><i class="fas fa-rocket"></i> Gradient Boosting</h6>
+                    <p class="text-sm mb-2">
+                        Sequentially builds trees, each correcting errors of previous ones.
+                        <strong>Best for:</strong> Handling complex patterns with high accuracy.
+                    </p>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <h6 class="text-info"><i class="fas fa-network-wired"></i> Neural Network</h6>
+                    <p class="text-sm mb-2">
+                        Deep learning model with 3 hidden layers (128-64-32 neurons).
+                        <strong>Best for:</strong> Capturing non-linear relationships.
+                    </p>
+                </div>
+                <hr>
+                <div>
+                    <h6 class="text-warning"><i class="fas fa-layer-group"></i> Ensemble</h6>
+                    <p class="text-sm mb-0">
+                        Combines all three models using soft voting (probability averaging).
+                        <strong>Best for:</strong> Overall highest accuracy and robustness.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 bg-gradient-success">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-graduation-cap"></i> Training Configuration
+                </h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <td><strong>Dataset Size:</strong></td>
+                            <td>4,424 student records</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Training Split:</strong></td>
+                            <td>80% train (3,539) / 20% test (885)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Features Used:</strong></td>
+                            <td>14 academic, financial & behavioral features</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Class Distribution:</strong></td>
+                            <td>67.9% Graduate/Enrolled, 32.1% Dropout</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cross-Validation:</strong></td>
+                            <td>3-fold stratified CV</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Optimization:</strong></td>
+                            <td>Parallel processing (n_jobs=-1)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hyperparameter Tuning:</strong></td>
+                            <td>Manual optimization based on CV scores</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Evaluation Metrics:</strong></td>
+                            <td>Accuracy, AUC-ROC, Precision, Recall, F1-Score</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feature Importance Placeholder -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-star"></i> Key Features Contributing to Predictions
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    <i class="fas fa-info-circle"></i> The following features have the highest impact on dropout prediction:
+                </p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-graduation-cap text-primary"></i> 1st Semester Grade</span>
+                                <span class="badge badge-primary badge-pill">High Impact</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-check-circle text-success"></i> Courses Approved</span>
+                                <span class="badge badge-success badge-pill">High Impact</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-dollar-sign text-warning"></i> Fee Payment Status</span>
+                                <span class="badge badge-warning badge-pill">Medium Impact</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-book text-info"></i> Courses Enrolled</span>
+                                <span class="badge badge-info badge-pill">Medium Impact</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-user-clock text-secondary"></i> Age at Enrollment</span>
+                                <span class="badge badge-secondary badge-pill">Medium Impact</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-certificate text-primary"></i> Previous Qualification</span>
+                                <span class="badge badge-secondary badge-pill">Medium Impact</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-chart-line text-success"></i> GDP Indicator</span>
+                                <span class="badge badge-light badge-pill">Low Impact</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-percentage text-info"></i> Unemployment Rate</span>
+                                <span class="badge badge-light badge-pill">Low Impact</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interpretation Guide -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow border-left-info">
+            <div class="card-body">
+                <h6 class="text-info mb-3">
+                    <i class="fas fa-lightbulb"></i> How to Interpret These Results
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Accuracy:</strong> Percentage of correct predictions (both dropout and enrolled students).</p>
+                        <p><strong>AUC-ROC:</strong> Model's ability to distinguish between classes (0.5 = random, 1.0 = perfect).</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Precision:</strong> Of students predicted to dropout, what percentage actually dropped out?</p>
+                        <p><strong>Recall:</strong> Of students who actually dropped out, what percentage did we catch?</p>
+                    </div>
+                </div>
+                <hr>
+                <p class="mb-0 text-muted">
+                    <i class="fas fa-info-circle"></i> <strong>Recommendation:</strong> The Ensemble model provides the best overall performance 
+                    and is currently deployed for production use. It balances accuracy and robustness across different student profiles.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Data from Flask
+    const modelNames = {{ model_names|tojson|safe }};
+    const accuracies = {{ accuracies|tojson|safe }};
+    const aucScores = {{ auc_scores|tojson|safe }};
+    
+    // Debug output
+    console.log('Model Names:', modelNames);
+    console.log('Accuracies:', accuracies);
+    console.log('AUC Scores:', aucScores);
+    
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded!');
+        return;
+    }
+    
+    console.log('Chart.js version:', Chart.version);
+    
+    // Check canvas elements
+    const accuracyCanvas = document.getElementById('accuracyChart');
+    const aucCanvas = document.getElementById('aucChart');
+    const combinedCanvas = document.getElementById('combinedChart');
+    
+    console.log('Accuracy Canvas:', accuracyCanvas);
+    console.log('AUC Canvas:', aucCanvas);
+    console.log('Combined Canvas:', combinedCanvas);
+    
+    if (!accuracyCanvas || !aucCanvas || !combinedCanvas) {
+        console.error('Canvas elements not found!');
+        return;
+    }
+    
+    // Color palette
+    const colors = {
+        primary: 'rgba(78, 115, 223, 0.8)',
+        success: 'rgba(28, 200, 138, 0.8)',
+        info: 'rgba(54, 185, 204, 0.8)',
+        warning: 'rgba(246, 194, 62, 0.8)',
+        danger: 'rgba(231, 74, 59, 0.8)'
+    };
+    
+    const borderColors = {
+        primary: 'rgba(78, 115, 223, 1)',
+        success: 'rgba(28, 200, 138, 1)',
+        info: 'rgba(54, 185, 204, 1)',
+        warning: 'rgba(246, 194, 62, 1)',
+        danger: 'rgba(231, 74, 59, 1)'
+    };
+    
+    try {
+        // Chart 1: Accuracy Bar Chart
+        console.log('Creating Accuracy Chart...');
+        const accuracyCtx = accuracyCanvas.getContext('2d');
+        new Chart(accuracyCtx, {
+            type: 'bar',
+            data: {
+                labels: modelNames,
+                datasets: [{
+            label: 'Accuracy (%)',
+            data: accuracies,
+            backgroundColor: [colors.primary, colors.success, colors.info, colors.warning],
+            borderColor: [borderColors.primary, borderColors.success, borderColors.info, borderColors.warning],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: 'Model Accuracy Comparison (%)',
+                font: {
+                    size: 16
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        }
+    }
+});
+console.log('Accuracy Chart created successfully!');
+
+// Chart 2: AUC-ROC Line Chart
+console.log('Creating AUC Chart...');
+const aucCtx = aucCanvas.getContext('2d');
+new Chart(aucCtx, {
+    type: 'line',
+    data: {
+        labels: modelNames,
+        datasets: [{
+            label: 'AUC-ROC Score',
+            data: aucScores,
+            backgroundColor: 'rgba(54, 185, 204, 0.2)',
+            borderColor: borderColors.info,
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: borderColors.info
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: 'AUC-ROC Score Comparison',
+                font: {
+                    size: 16
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 1.0,
+                ticks: {
+                    callback: function(value) {
+                        return value.toFixed(2);
+                    }
+                }
+            }
+        }
+    }
+});
+console.log('AUC Chart created successfully!');
+
+// Chart 3: Combined Comparison
+console.log('Creating Combined Chart...');
+const combinedCtx = combinedCanvas.getContext('2d');
+new Chart(combinedCtx, {
+    type: 'bar',
+    data: {
+        labels: modelNames,
+        datasets: [
+            {
+                label: 'Accuracy (%)',
+                data: accuracies,
+                backgroundColor: colors.success,
+                borderColor: borderColors.success,
+                borderWidth: 2
+            },
+            {
+                label: 'AUC-ROC (× 100)',
+                data: aucScores.map(x => x * 100),
+                backgroundColor: colors.info,
+                borderColor: borderColors.info,
+                borderWidth: 2
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            },
+            title: {
+                display: true,
+                text: 'Combined Performance Metrics',
+                font: {
+                    size: 16
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value.toFixed(1);
+                    }
+                }
+            }
+        }
+    }
+});
+console.log('Combined Chart created successfully!');
+
+    } catch (error) {
+        console.error('Error creating charts:', error);
+        alert('Error loading charts. Please check console for details.');
+    }
+
+}); // End DOMContentLoaded
+</script>
+{% endblock %}

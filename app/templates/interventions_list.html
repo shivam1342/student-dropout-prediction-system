@@ -1,0 +1,275 @@
+{% extends "layout.html" %}
+
+{% block title %}Interventions - EduCare{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-hands-helping me-2"></i>Intervention Management</h2>
+            <p class="text-muted">Track and manage student interventions</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('intervention_bp.create_intervention') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Create Intervention
+            </a>
+            <a href="{{ url_for('intervention_bp.calendar_view') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-calendar me-1"></i> Calendar View
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <i class="fas fa-clock text-primary"></i> Scheduled
+                    </h6>
+                    <h2 class="mb-0">{{ stats.by_status.get('Scheduled', 0) }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <i class="fas fa-spinner text-warning"></i> In Progress
+                    </h6>
+                    <h2 class="mb-0">{{ stats.by_status.get('In Progress', 0) }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <i class="fas fa-check-circle text-success"></i> Completed
+                    </h6>
+                    <h2 class="mb-0">{{ stats.by_status.get('Completed', 0) }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <i class="fas fa-chart-line text-info"></i> Avg Effectiveness
+                    </h6>
+                    <h2 class="mb-0">{{ "%.1f"|format(stats.avg_effectiveness) }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="All" {% if status_filter == 'All' %}selected{% endif %}>All Statuses</option>
+                        <option value="Scheduled" {% if status_filter == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+                        <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+                        <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+                        <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Type</label>
+                    <select name="intervention_type" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Types</option>
+                        <option value="Academic Support" {% if type_filter == 'Academic Support' %}selected{% endif %}>Academic Support</option>
+                        <option value="Counseling" {% if type_filter == 'Counseling' %}selected{% endif %}>Counseling</option>
+                        <option value="Financial Aid" {% if type_filter == 'Financial Aid' %}selected{% endif %}>Financial Aid</option>
+                        <option value="Mentoring" {% if type_filter == 'Mentoring' %}selected{% endif %}>Mentoring</option>
+                        <option value="Peer Support" {% if type_filter == 'Peer Support' %}selected{% endif %}>Peer Support</option>
+                        <option value="Parent Meeting" {% if type_filter == 'Parent Meeting' %}selected{% endif %}>Parent Meeting</option>
+                        <option value="Workshop" {% if type_filter == 'Workshop' %}selected{% endif %}>Workshop</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Priority</label>
+                    <select name="priority" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Priorities</option>
+                        <option value="Critical" {% if priority_filter == 'Critical' %}selected{% endif %}>Critical</option>
+                        <option value="High" {% if priority_filter == 'High' %}selected{% endif %}>High</option>
+                        <option value="Medium" {% if priority_filter == 'Medium' %}selected{% endif %}>Medium</option>
+                        <option value="Low" {% if priority_filter == 'Low' %}selected{% endif %}>Low</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Student</label>
+                    <select name="student_id" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Students</option>
+                        {% for student in students %}
+                        <option value="{{ student.id }}" {% if student_id|string == student.id|string %}selected{% endif %}>
+                            {{ student.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Interventions Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>Interventions
+                <span class="badge bg-secondary">{{ interventions|length }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if interventions %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Type</th>
+                            <th>Priority</th>
+                            <th>Scheduled Date</th>
+                            <th>Assigned To</th>
+                            <th>Status</th>
+                            <th>Effectiveness</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for intervention in interventions %}
+                        <tr class="intervention-row-{{ intervention.priority.lower() if intervention.priority else 'medium' }}">
+                            <td>
+                                <a href="{{ url_for('student_bp.student_profile', student_id=intervention.student_id) }}">
+                                    {{ intervention.student.name }}
+                                </a>
+                            </td>
+                            <td>{{ intervention.intervention_type }}</td>
+                            <td>
+                                {% if intervention.priority == 'Critical' %}
+                                <span class="badge bg-danger">{{ intervention.priority }}</span>
+                                {% elif intervention.priority == 'High' %}
+                                <span class="badge bg-warning">{{ intervention.priority }}</span>
+                                {% elif intervention.priority == 'Medium' %}
+                                <span class="badge bg-info">{{ intervention.priority }}</span>
+                                {% else %}
+                                <span class="badge bg-success">{{ intervention.priority or 'Low' }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ intervention.scheduled_date.strftime('%Y-%m-%d') if intervention.scheduled_date else 'N/A' }}</td>
+                            <td>{{ intervention.assigned_to or 'Unassigned' }}</td>
+                            <td>
+                                {% if intervention.status == 'Completed' %}
+                                <span class="badge bg-success">{{ intervention.status }}</span>
+                                {% elif intervention.status == 'In Progress' %}
+                                <span class="badge bg-warning">{{ intervention.status }}</span>
+                                {% elif intervention.status == 'Cancelled' %}
+                                <span class="badge bg-secondary">{{ intervention.status }}</span>
+                                {% else %}
+                                <span class="badge bg-primary">{{ intervention.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if intervention.effectiveness_rating %}
+                                <span class="badge bg-info">{{ intervention.effectiveness_rating }}/5</span>
+                                {% else %}
+                                <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('intervention_bp.intervention_detail', intervention_id=intervention.id) }}" 
+                                   class="btn btn-sm btn-outline-primary" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if intervention.status == 'Scheduled' or intervention.status == 'In Progress' %}
+                                <a href="{{ url_for('intervention_bp.complete_intervention', intervention_id=intervention.id) }}" 
+                                   class="btn btn-sm btn-outline-success" title="Complete">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                <a href="{{ url_for('intervention_bp.edit_intervention', intervention_id=intervention.id) }}" 
+                                   class="btn btn-sm btn-outline-secondary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No interventions found matching the selected filters.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Upcoming Interventions Widget -->
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-calendar-check me-2"></i>Upcoming Interventions (Next 7 Days)
+            </h5>
+        </div>
+        <div class="card-body" id="upcoming-interventions">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow-up Reminders Widget -->
+    {% if stats.follow_up_due > 0 %}
+    <div class="card mt-4 border-warning">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">
+                <i class="fas fa-bell me-2"></i>Follow-up Reminders
+                <span class="badge bg-dark">{{ stats.follow_up_due }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <a href="{{ url_for('intervention_bp.follow_up_reminders') }}" class="btn btn-warning">
+                <i class="fas fa-eye me-1"></i> View Follow-up Reminders
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.intervention-row-critical {
+    background-color: #ffe6e6;
+}
+.intervention-row-high {
+    background-color: #fff3cd;
+}
+.intervention-row-medium {
+    background-color: #e7f3ff;
+}
+.intervention-row-low {
+    background-color: #e6f7e6;
+}
+</style>
+
+<script>
+// Load upcoming interventions widget
+document.addEventListener('DOMContentLoaded', function() {
+    fetch("{{ url_for('intervention_bp.upcoming_widget') }}")
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('upcoming-interventions').innerHTML = html;
+        })
+        .catch(error => {
+            document.getElementById('upcoming-interventions').innerHTML = 
+                '<div class="alert alert-danger">Error loading upcoming interventions</div>';
+        });
+});
+</script>
+{% endblock %}

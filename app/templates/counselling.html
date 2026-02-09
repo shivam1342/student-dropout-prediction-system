@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+{% block title %}Counselling Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4 text-gray-800">Counselling Dashboard</h1>
+<p class="mb-4">This dashboard lists high-risk students and provides AI-generated recommendations based on their key risk factors.</p>
+
+{% for item in counselling_data %}
+<div class="card shadow mb-4">
+    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold"><i class="fas fa-user-circle me-2"></i>{{ item.student.name }}</h6>
+        <span class="badge bg-light text-danger">Risk: {{ item.prediction.risk_score }}%</span>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-5">
+                <h6 class="text-dark">Key Risk Factors (from SHAP)</h6>
+                <ul class="list-group mb-3">
+                    {% if item.prediction.top_feature_1 %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ item.prediction.top_feature_1 }}
+                        <span class="badge bg-secondary rounded-pill">{{ item.prediction.top_feature_1_value }}</span>
+                    </li>
+                    {% endif %}
+                    {% if item.prediction.top_feature_2 %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ item.prediction.top_feature_2 }}
+                        <span class="badge bg-secondary rounded-pill">{{ item.prediction.top_feature_2_value }}</span>
+                    </li>
+                    {% endif %}
+                    {% if item.prediction.top_feature_3 %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ item.prediction.top_feature_3 }}
+                        <span class="badge bg-secondary rounded-pill">{{ item.prediction.top_feature_3_value }}</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-md-7">
+                <h6 class="text-primary">Recommended Interventions</h6>
+                {% for rec in item.recommendations %}
+                <div class="alert alert-info">
+                    <strong>{{ rec.intervention_type }}:</strong> {{ rec.recommendation }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <a href="{{ url_for('student_bp.student_profile', student_id=item.student.id) }}" class="btn btn-sm btn-outline-primary mt-2">View Full Profile</a>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-success text-center">
+    <i class="fas fa-check-circle fa-3x mb-3"></i>
+    <h4>No High-Risk Students</h4>
+    <p>There are currently no students identified in the high-risk category. Well done!</p>
+</div>
+{% endfor %}
+{% endblock %}

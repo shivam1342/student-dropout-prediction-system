@@ -15,7 +15,7 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier,
 from sklearn.neural_network import MLPClassifier
 
 # --- Model & Explainability Artifacts ---
-MODEL_PATH = os.path.join('ml', 'model.pkl')
+MODEL_PATH = os.path.join('app', 'ml', 'models', 'model.pkl')
 
 # Load the ML model
 try:

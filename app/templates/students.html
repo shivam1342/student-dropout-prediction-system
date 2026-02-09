@@ -1,0 +1,59 @@
+{% extends 'layout.html' %}
+{% block title %}Student Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Student Management</h1>
+    <a href="{{ url_for('student_bp.add_student') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Add New Student
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Age at Enrollment</th>
+                        <th>1st Sem Grade</th>
+                        <th>Risk Level</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.age_at_enrollment }}</td>
+                        <td>{{ student.curricular_units_1st_sem_grade }}</td>
+                        <td>
+                            {% if student.latest_prediction %}
+                                {% set category = student.latest_prediction.risk_category %}
+                                <span class="badge bg-{{ 'danger' if category == 'High' else ('warning' if category == 'Medium' else 'success') }}">{{ category }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('student_bp.student_profile', student_id=student.id) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                            <a href="{{ url_for('student_bp.edit_student', student_id=student.id) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                            <form action="{{ url_for('student_bp.delete_student', student_id=student.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No students found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

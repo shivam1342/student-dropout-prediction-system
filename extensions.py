@@ -1,8 +1,8 @@
 """
 Flask Extension Initializations
-This file is used to initialize Flask extensions to avoid circular imports.
+This file is a compatibility shim - it imports from the new app.extensions
+to maintain backward compatibility with old controllers.
 """
-from flask_sqlalchemy import SQLAlchemy
+from app.extensions import db
 
-# Initialize the database extension
-db = SQLAlchemy()
+__all__ = ['db']

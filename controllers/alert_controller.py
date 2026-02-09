@@ -221,6 +221,10 @@ class AlertController:
         """Check dropout risk prediction and generate alert if needed"""
         dropout_prob = prediction.dropout_probability
         
+        # Handle None dropout probability
+        if dropout_prob is None:
+            dropout_prob = 0.0
+        
         if dropout_prob > AlertController.THRESHOLDS['dropout_risk']['critical']:
             severity = 'Critical'
         elif dropout_prob > AlertController.THRESHOLDS['dropout_risk']['high']:
