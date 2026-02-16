@@ -2,14 +2,20 @@
 EduCare Flask Application
 AI-Based Dropout Prediction and Counselling System
 """
+import time
+_start = time.time()
+
 from flask import Flask, render_template
 import os
 from app.extensions import db
 from app.config import config
 
+print(f"⏱️  Core imports: {time.time() - _start:.2f}s")
+
 
 def create_app(config_name='default'):
     """Application factory pattern"""
+    _t = time.time()
     # Define template and static folders relative to app directory
     template_dir = os.path.join(os.path.dirname(__file__), 'templates')
     static_dir = os.path.join(os.path.dirname(__file__), 'static')
@@ -27,8 +33,10 @@ def create_app(config_name='default'):
     
     # Initialize extensions
     db.init_app(app)
+    print(f"⏱️  Flask app + DB init: {time.time() - _t:.2f}s")
     
     # Import models to register them with SQLAlchemy
+    _t = time.time()
     from app.models import (
         Student, 
         RiskPrediction, 
@@ -39,8 +47,10 @@ def create_app(config_name='default'):
         Intervention,
         GamificationProfile
     )
+    print(f"⏱️  Models import: {time.time() - _t:.2f}s")
     
     # Register blueprints
+    _t = time.time()
     from app.routes.main_routes import main_bp
     from app.routes.student_routes import student_bp
     from app.routes.api_routes import api_bp
@@ -49,11 +59,10 @@ def create_app(config_name='default'):
     from app.routes.alert_routes import alert_bp
     from app.routes.intervention_routes import intervention_bp
     from app.routes.gamification_routes import gamification_bp
-    # Note: chatbot_bp temporarily imported from old location
-    import sys
-    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-    from controllers.chatbot_controller import chatbot_bp
+    from app.controllers.chatbot_controller import chatbot_bp
+    print(f"⏱️  Routes/blueprints import: {time.time() - _t:.2f}s")
     
+    _t = time.time()
     app.register_blueprint(main_bp)
     app.register_blueprint(student_bp, url_prefix='/students')
     app.register_blueprint(api_bp, url_prefix='/api')
@@ -63,9 +72,10 @@ def create_app(config_name='default'):
     app.register_blueprint(gamification_bp, url_prefix='/gamification')
     app.register_blueprint(favicon_bp)
     app.register_blueprint(chatbot_bp)
+    print(f"⏱️  Blueprint registration: {time.time() - _t:.2f}s")
     
     # CLI Commands
-    from controllers.db_utils import seed_db
+    from app.controllers.db_utils import seed_db
 
     @app.cli.command("db-create")
     def create_database_command():
@@ -82,8 +92,10 @@ def create_app(config_name='default'):
             seed_db()
     
     # Create database tables automatically
+    _t = time.time()
     with app.app_context():
         db.create_all()
+    print(f"⏱️  Database creation: {time.time() - _t:.2f}s")
     
     # Error handlers
     @app.errorhandler(404)

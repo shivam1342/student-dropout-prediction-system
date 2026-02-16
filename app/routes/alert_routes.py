@@ -4,7 +4,7 @@ Routes for alert dashboard and management
 """
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 from app.models import Alert, Student
-from controllers.alert_controller import AlertController
+from app.controllers.alert_controller import AlertController
 from app.extensions import db
 
 alert_bp = Blueprint('alert_bp', __name__)

@@ -4,7 +4,7 @@ Handles leaderboard, badges, and gamification features
 """
 from flask import Blueprint, render_template, request, jsonify
 from app.models import GamificationProfile, Student
-from controllers.gamification_controller import GamificationController
+from app.controllers.gamification_controller import GamificationController
 from app.extensions import db
 from sqlalchemy import desc
 

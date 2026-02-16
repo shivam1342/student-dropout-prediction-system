@@ -4,7 +4,7 @@ Handles all intervention management routes
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from app.models import Intervention, Student, Alert
-from controllers.intervention_controller import InterventionController
+from app.controllers.intervention_controller import InterventionController
 from app.extensions import db
 from datetime import datetime, timedelta
 from sqlalchemy import func

@@ -4,9 +4,9 @@ Handles dashboard, home, and about pages.
 """
 from flask import Blueprint, render_template
 from app.models import Student, RiskPrediction, GamificationProfile
-from controllers.alert_controller import AlertController
-from controllers.intervention_controller import InterventionController
-from controllers.gamification_controller import GamificationController
+from app.controllers.alert_controller import AlertController
+from app.controllers.intervention_controller import InterventionController
+from app.controllers.gamification_controller import GamificationController
 from sqlalchemy import desc
 import os
 import json
@@ -51,7 +51,7 @@ def dashboard():
     
     # Load ML Model Comparison
     model_comparison = {}
-    comparison_path = os.path.join('ml', 'model_comparison.json')
+    comparison_path = os.path.join('app', 'ml', 'models', 'model_comparison.json')
     if os.path.exists(comparison_path):
         with open(comparison_path, 'r') as f:
             model_comparison = json.load(f)
@@ -88,7 +88,7 @@ def chatbot_page():
 def evaluation():
     """ML Model Evaluation Dashboard with comprehensive metrics and visualizations."""
     # Load model comparison data
-    comparison_path = os.path.join('ml', 'model_comparison.json')
+    comparison_path = os.path.join('app', 'ml', 'models', 'model_comparison.json')
     model_comparison = {}
     
     if os.path.exists(comparison_path):

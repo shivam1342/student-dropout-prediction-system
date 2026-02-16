@@ -3,9 +3,9 @@ Student Routes
 Handles CRUD for students and viewing profiles.
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from controllers import data_controller
+from app.controllers import data_controller
 from app.models import Student, Alert, Intervention, LMSActivity, BehavioralData, GamificationProfile
-from controllers.gamification_controller import GamificationController
+from app.controllers.gamification_controller import GamificationController
 from app.extensions import db
 from sqlalchemy import desc
 

@@ -3,7 +3,7 @@ API Routes
 Provides REST endpoints for predictions and chatbot.
 """
 from flask import Blueprint, request, jsonify
-from controllers import prediction_controller, data_controller, chatbot_controller
+from app.controllers import prediction_controller, data_controller, chatbot_controller
 from app.models import Student, RiskPrediction
 from app.extensions import db
 

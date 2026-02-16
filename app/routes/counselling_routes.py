@@ -3,7 +3,7 @@ Counselling Routes
 Dashboard for viewing recommendations.
 """
 from flask import Blueprint, render_template
-from controllers import data_controller, counselling_controller
+from app.controllers import data_controller, counselling_controller
 from app.models import Student, RiskPrediction
 from sqlalchemy import desc
 
