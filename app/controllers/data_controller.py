@@ -2,8 +2,8 @@
 Data Controller
 Handles CRUD operations for student data.
 """
-from extensions import db
-from models import Student, RiskPrediction, CounsellingLog
+from app.extensions import db
+from app.models import Student, RiskPrediction, CounsellingLog
 
 def get_all_students():
     """Fetch all students with their latest risk prediction."""

@@ -3,8 +3,8 @@ Intervention Controller
 Manages interventions, support services, and outcome tracking
 """
 from datetime import datetime, timedelta
-from models import Student, Intervention, Alert
-from extensions import db
+from app.models import Student, Intervention, Alert
+from app.extensions import db
 
 
 class InterventionController:

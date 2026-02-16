@@ -3,8 +3,8 @@ Gamification Controller
 Handles gamification logic, points, badges, achievements, and streaks
 """
 from datetime import datetime, date
-from models import Student, GamificationProfile
-from extensions import db
+from app.models import Student, GamificationProfile
+from app.extensions import db
 
 
 class GamificationController:

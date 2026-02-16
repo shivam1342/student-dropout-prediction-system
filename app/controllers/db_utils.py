@@ -4,9 +4,9 @@ Includes database seeding and maintenance functions
 """
 import random
 from datetime import datetime, timedelta
-from models import Student, LMSActivity, BehavioralData, GamificationProfile
-from controllers.alert_controller import AlertController
-from extensions import db
+from app.models import Student, LMSActivity, BehavioralData, GamificationProfile
+from app.controllers.alert_controller import AlertController
+from app.extensions import db
 from faker import Faker
 
 fake = Faker()

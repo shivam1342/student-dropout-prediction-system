@@ -3,8 +3,8 @@ Alert Controller
 Handles alert generation, management, and real-time monitoring
 """
 from datetime import datetime, timedelta
-from models import Student, Alert, RiskPrediction, BehavioralData, LMSActivity
-from extensions import db
+from app.models import Student, Alert, RiskPrediction, BehavioralData, LMSActivity
+from app.extensions import db
 
 
 class AlertController:

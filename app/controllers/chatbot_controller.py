@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import subprocess
 import os
-from models import Student, RiskPrediction
+from app.models import Student, RiskPrediction
 
 chatbot_bp = Blueprint('chatbot', __name__)
 
