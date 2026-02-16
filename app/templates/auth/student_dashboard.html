@@ -1,0 +1,269 @@
+{% extends "layout.html" %}
+
+{% block title %}My Dashboard - EduCare{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body">
+                    <h2><i class="fas fa-user-graduate me-2"></i>Welcome, {{ student.name }}!</h2>
+                    <p class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>{{ student.email }}
+                        | <i class="fas fa-calendar me-2"></i>Enrolled: {{ student.enrollment_date.strftime('%Y-%m-%d') if student.enrollment_date else 'N/A' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Risk Status Card -->
+    {% if latest_prediction %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow {% if latest_prediction.risk_category == 'High' %}border-danger{% elif latest_prediction.risk_category == 'Medium' %}border-warning{% else %}border-success{% endif %}">
+                <div class="card-header py-3 {% if latest_prediction.risk_category == 'High' %}bg-danger text-white{% elif latest_prediction.risk_category == 'Medium' %}bg-warning text-dark{% else %}bg-success text-white{% endif %}">
+                    <h4 class="m-0 font-weight-bold">
+                        <i class="fas fa-chart-line me-2"></i>Your Current Dropout Risk Status
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <h1 class="display-3 {% if latest_prediction.risk_category == 'High' %}text-danger{% elif latest_prediction.risk_category == 'Medium' %}text-warning{% else %}text-success{% endif %}">
+                                {{ latest_prediction.risk_score }}%
+                            </h1>
+                            <h5 class="text-muted">Risk Score</h5>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <span class="badge {% if latest_prediction.risk_category == 'High' %}bg-danger{% elif latest_prediction.risk_category == 'Medium' %}bg-warning{% else %}bg-success{% endif %}" style="font-size: 2rem; padding: 1rem;">
+                                {{ latest_prediction.risk_category }}
+                            </span>
+                            <h5 class="text-muted mt-2">Risk Category</h5>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <h3 class="text-muted">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </h3>
+                            <p class="text-muted">Last Updated:<br>{{ latest_prediction.prediction_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if latest_prediction.risk_category in ['High', 'Medium'] %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Recommendation:</strong> We recommend reaching out to your counselor or checking the active interventions below.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success mt-3">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Great job!</strong> Keep up the good work! Continue attending classes and maintaining your grades.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-sm border-left-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Active Alerts
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alert_count }}</div>
+                        </div>
+                        <div class="text-warning">
+                            <i class="fas fa-bell fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-sm border-left-info">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Active Interventions
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ intervention_count }}</div>
+                        </div>
+                        <div class="text-info">
+                            <i class="fas fa-hands-helping fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-sm border-left-success">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Gamification Points
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if gamification %}{{ gamification.total_points }}{% else %}0{% endif %}
+                            </div>
+                        </div>
+                        <div class="text-success">
+                            <i class="fas fa-trophy fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active Alerts -->
+    {% if active_alerts %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 bg-warning text-dark">
+                    <h5 class="m-0 font-weight-bold">
+                        <i class="fas fa-bell me-2"></i>Active Alerts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for alert in active_alerts %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-1">
+                                    <span class="badge bg-{{ 'danger' if alert.severity == 'high' else 'warning' if alert.severity == 'medium' else 'info' }}">
+                                        {{ alert.severity|upper }}
+                                    </span>
+                                    {{ alert.alert_type }}
+                                </h6>
+                                <small>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <p class="mb-1">{{ alert.message }}</p>
+                            <small class="text-muted">Status: {{ alert.status }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Active Interventions -->
+    {% if active_interventions %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 bg-info text-white">
+                    <h5 class="m-0 font-weight-bold">
+                        <i class="fas fa-hands-helping me-2"></i>Active Interventions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for intervention in active_interventions %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-1">
+                                    <span class="badge bg-info">{{ intervention.intervention_type }}</span>
+                                    {{ intervention.title }}
+                                </h6>
+                                <small>Due: {{ intervention.scheduled_date.strftime('%Y-%m-%d') if intervention.scheduled_date else 'N/A' }}</small>
+                            </div>
+                            <p class="mb-1">{{ intervention.description }}</p>
+                            <a href="{{ url_for('intervention_bp.intervention_detail', intervention_id=intervention.id) }}" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Academic Performance -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-graduation-cap me-2"></i>Academic Performance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <td><strong>1st Semester Grade:</strong></td>
+                            <td>{{ student.curricular_units_1st_sem_grade|round(2) }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2nd Semester Grade:</strong></td>
+                            <td>{{ student.curricular_units_2nd_sem_grade|round(2) }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scholarship Holder:</strong></td>
+                            <td>{% if student.scholarship_holder %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tuition Fees Status:</strong></td>
+                            <td>{% if student.tuition_fees_up_to_date %}<span class="badge bg-success">Up to Date</span>{% else %}<span class="badge bg-danger">Pending</span>{% endif %}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-rocket me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main_bp.chatbot_page') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-comments me-2"></i>Chat with AI Assistant
+                        </a>
+                        <a href="{{ url_for('counselling_bp.dashboard') }}" class="btn btn-info btn-lg">
+                            <i class="fas fa-heart-pulse me-2"></i>Request Counselling
+                        </a>
+                        <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-trophy me-2"></i>View Leaderboard
+                        </a>
+                        <a href="{{ url_for ('student_bp.student_profile', student_id=student.id) }}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-user me-2"></i>View Full Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-warning {
+        border-left: 4px solid #f6c23e !important;
+    }
+    .border-left-info {
+        border-left: 4px solid #36b9cc !important;
+    }
+    .border-left-success {
+        border-left: 4px solid #1cc88a !important;
+    }
+</style>
+{% endblock %}

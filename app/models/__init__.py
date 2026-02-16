@@ -1,6 +1,8 @@
 """
 Database Models Package
 """
+from app.models.user import User
+from app.models.teacher import Teacher, TeacherStudentAssignment
 from app.models.student import Student
 from app.models.risk_prediction import RiskPrediction
 from app.models.counselling_log import CounsellingLog
@@ -11,6 +13,9 @@ from app.models.intervention import Intervention
 from app.models.gamification import GamificationProfile
 
 __all__ = [
+    'User',
+    'Teacher',
+    'TeacherStudentAssignment',
     'Student',
     'RiskPrediction',
     'CounsellingLog',
@@ -20,3 +25,4 @@ __all__ = [
     'Intervention',
     'GamificationProfile'
 ]
+

@@ -47,6 +47,41 @@
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'main_bp.about' else '' }}" href="{{ url_for('main_bp.about') }}"><i class="fas fa-info-circle me-1"></i> About</a>
                     </li>
+                    
+                    {% if current_user.is_authenticated %}
+                    <!-- User Menu (Logged In) -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> {{ current_user.full_name or current_user.username }}
+                            <span class="badge bg-light text-primary ms-1">{{ current_user.role|upper }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            {% if current_user.is_teacher %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth_bp.teacher_dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>My Dashboard
+                            </a></li>
+                            {% elif current_user.is_student %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth_bp.student_dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>My Dashboard
+                            </a></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth_bp.profile') }}">
+                                <i class="fas fa-user me-2"></i>My Profile
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth_bp.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <!-- Login Link (Not Logged In) -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth_bp.login') }}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

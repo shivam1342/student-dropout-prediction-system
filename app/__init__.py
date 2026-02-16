@@ -7,7 +7,7 @@ _start = time.time()
 
 from flask import Flask, render_template
 import os
-from app.extensions import db
+from app.extensions import db, login_manager
 from app.config import config
 
 print(f"⏱️  Core imports: {time.time() - _start:.2f}s")
@@ -33,11 +33,15 @@ def create_app(config_name='default'):
     
     # Initialize extensions
     db.init_app(app)
+    login_manager.init_app(app)
     print(f"⏱️  Flask app + DB init: {time.time() - _t:.2f}s")
     
     # Import models to register them with SQLAlchemy
     _t = time.time()
     from app.models import (
+        User,
+        Teacher,
+        TeacherStudentAssignment,
         Student, 
         RiskPrediction, 
         CounsellingLog,
@@ -49,8 +53,14 @@ def create_app(config_name='default'):
     )
     print(f"⏱️  Models import: {time.time() - _t:.2f}s")
     
+    # Setup Flask-Login user loader
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+    
     # Register blueprints
     _t = time.time()
+    from app.routes.auth_routes import auth_bp
     from app.routes.main_routes import main_bp
     from app.routes.student_routes import student_bp
     from app.routes.api_routes import api_bp
@@ -63,6 +73,7 @@ def create_app(config_name='default'):
     print(f"⏱️  Routes/blueprints import: {time.time() - _t:.2f}s")
     
     _t = time.time()
+    app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(main_bp)
     app.register_blueprint(student_bp, url_prefix='/students')
     app.register_blueprint(api_bp, url_prefix='/api')
@@ -75,7 +86,7 @@ def create_app(config_name='default'):
     print(f"⏱️  Blueprint registration: {time.time() - _t:.2f}s")
     
     # CLI Commands
-    from app.controllers.db_utils import seed_db
+    from app.controllers.db_utils import seed_db, seed_demo_users
 
     @app.cli.command("db-create")
     def create_database_command():
@@ -90,6 +101,12 @@ def create_app(config_name='default'):
         with app.app_context():
             db.create_all()
             seed_db()
+    
+    @app.cli.command("seed-users")
+    def seed_demo_users_command():
+        """Seeds demo users (teacher1, student1, admin) for testing authentication."""
+        with app.app_context():
+            seed_demo_users()
     
     # Create database tables automatically
     _t = time.time()

@@ -1,0 +1,199 @@
+{% extends "layout.html" %}
+
+{% block title %}My Profile - EduCare{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if user.profile_picture_url %}
+                        <img src="{{ user.profile_picture_url }}" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 150px; height: 150px; font-size: 4rem;">
+                            {{ user.full_name[0]|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h4>{{ user.full_name }}</h4>
+                    <p class="text-muted">@{{ user.username }}</p>
+                    
+                    <span class="badge bg-primary mb-3">{{ user.role|upper }}</span>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        {% if user.is_teacher %}
+                        <a href="{{ url_for('auth_bp.teacher_dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>My Dashboard
+                        </a>
+                        {% elif user.is_student %}
+                        <a href="{{ url_for('auth_bp.student_dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>My Dashboard
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('main_bp.dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>Main Dashboard
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('auth_bp.logout') }}" class="btn btn-outline-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow mt-3">
+                <div class="card-body">
+                    <h6 class="text-muted mb-3"><i class="fas fa-info-circle me-2"></i>Account Info</h6>
+                    <p class="mb-2">
+                        <i class="fas fa-user me-2 text-muted"></i>
+                        <strong>Username:</strong> {{ user.username }}
+                    </p>
+                    <p class="mb-2">
+                        <i class="fas fa-envelope me-2 text-muted"></i>
+                        <strong>Email:</strong> {{ user.email }}
+                    </p>
+                    {% if user.phone %}
+                    <p class="mb-2">
+                        <i class="fas fa-phone me-2 text-muted"></i>
+                        <strong>Phone:</strong> {{ user.phone }}
+                    </p>
+                    {% endif %}
+                    {% if user.department %}
+                    <p class="mb-2">
+                        <i class="fas fa-building me-2 text-muted"></i>
+                        <strong>Department:</strong> {{ user.department }}
+                    </p>
+                    {% endif %}
+                    <p class="mb-2">
+                        <i class="fas fa-calendar me-2 text-muted"></i>
+                        <strong>Member Since:</strong> {{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'N/A' }}
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-clock me-2 text-muted"></i>
+                        <strong>Last Login:</strong> {{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user-edit me-2"></i>Profile Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="full_name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="full_name" value="{{ user.full_name }}" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" value="{{ user.email }}" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="role" class="form-label">Role</label>
+                                <input type="text" class="form-control" id="role" value="{{ user.role|title }}" disabled>
+                            </div>
+                        </div>
+                        
+                        {% if user.department %}
+                        <div class="mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <input type="text" class="form-control" id="department" value="{{ user.department }}" disabled>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.phone %}
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="phone" value="{{ user.phone }}" disabled>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> Profile editing is currently disabled. Contact an administrator to update your information.
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if user.is_teacher and user.teacher_profile %}
+            <div class="card shadow mt-4">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>Teacher Profile
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Employee ID:</strong><br>
+                            {{ user.teacher_profile.employee_id or 'Not set' }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Office Location:</strong><br>
+                            {{ user.teacher_profile.office_location or 'Not set' }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Subjects:</strong><br>
+                        {% set subjects = user.teacher_profile.get_subjects() %}
+                        {% if subjects %}
+                            {% for subject in subjects %}
+                            <span class="badge bg-secondary">{{ subject }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-muted">No subjects assigned</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <strong>Office Hours:</strong><br>
+                        {% set hours = user.teacher_profile.get_office_hours() %}
+                        {% if hours %}
+                            <ul class="list-unstyled mt-2">
+                            {% for day, time in hours.items() %}
+                                <li><strong>{{ day }}:</strong> {{ time }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">No office hours set</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if user.is_student and user.student_profile %}
+            <div class="card shadow mt-4">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user-graduate me-2"></i>Student Profile
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('student_bp.student_profile', student_id=user.student_profile.id) }}" class="btn btn-primary">
+                        <i class="fas fa-eye me-2"></i>View Full Student Profile
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

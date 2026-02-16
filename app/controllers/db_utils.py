@@ -4,7 +4,7 @@ Includes database seeding and maintenance functions
 """
 import random
 from datetime import datetime, timedelta
-from app.models import Student, LMSActivity, BehavioralData, GamificationProfile
+from app.models import Student, LMSActivity, BehavioralData, GamificationProfile, User, Teacher, TeacherStudentAssignment
 from app.controllers.alert_controller import AlertController
 from app.extensions import db
 from faker import Faker
@@ -276,3 +276,200 @@ def generate_initial_alerts():
     print(f"   Financial: {stats['by_type']['financial']}")
     print(f"   Behavioral: {stats['by_type']['behavioral']}")
     print(f"   Psychological: {stats['by_type']['psychological']}")
+
+
+def seed_demo_users():
+    """
+    Seeds demo users for testing authentication system:
+    - teacher1 (password: password123)
+    - student1 (password: password123)
+    - admin (password: admin123)
+    """
+    print("🌱 Seeding demo users...")
+    
+    # Check if demo users already exist
+    admin_exists = User.query.filter_by(username='admin').first()
+    teacher_exists = User.query.filter_by(username='teacher1').first()
+    student_exists = User.query.filter_by(username='student1').first()
+    
+    if admin_exists and teacher_exists and student_exists:
+        print("⚠️  All demo users already exist.")
+        print("\n📋 Demo Credentials:")
+        print("   Admin:    username=admin, password=admin123")
+        print("   Teacher:  username=teacher1, password=password123")
+        print("   Student:  username=student1, password=password123")
+        return
+    
+    # Create Admin User if not exists
+    if not admin_exists:
+        admin_user = User(
+            username='admin',
+            email='admin@educare.edu',
+            full_name='System Administrator',
+            role='admin',
+            department='IT Administration',
+            is_active=True
+        )
+        admin_user.set_password('admin123')
+        db.session.add(admin_user)
+        try:
+            db.session.commit()
+            print("✅ Created admin user (username: admin, password: admin123)")
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Error creating admin user: {e}")
+            return
+    else:
+        print("⚠️  Admin user already exists")
+    
+    # Create Teacher User if not exists
+    if not teacher_exists:
+        teacher_user = User(
+            username='teacher1',
+            email='teacher1@educare.edu',
+            full_name='Dr. Sarah Johnson',
+            role='teacher',
+            department='Computer Science',
+            phone='+1-555-0101',
+            is_active=True
+        )
+        teacher_user.set_password('password123')
+        db.session.add(teacher_user)
+        
+        # Commit to get user IDs
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Error creating teacher user: {e}")
+            return
+        
+        # Create Teacher Profile (after commit to get teacher_user.id)
+        teacher_profile = Teacher(
+            user_id=teacher_user.id,
+            employee_id='T001',
+            department='Computer Science',
+            office_location='Building A, Room 301'
+        )
+        teacher_profile.set_subjects(['Data Science', 'Machine Learning', 'Programming'])
+        teacher_profile.set_office_hours({
+            'Monday': '10:00 AM - 12:00 PM',
+            'Wednesday': '2:00 PM - 4:00 PM',
+            'Friday': '10:00 AM - 12:00 PM'
+        })
+        db.session.add(teacher_profile)
+        print("✅ Created teacher user (username: teacher1, password: password123)")
+        
+        # Commit to get teacher_id
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Error creating teacher profile: {e}")
+            return
+    else:
+        print("⚠️  Teacher user already exists")
+        teacher_user = teacher_exists
+    
+    # Get teacher profile for assignment
+    teacher_profile = Teacher.query.filter_by(user_id=teacher_user.id).first()
+    
+    # Create Student User if not exists
+    if not student_exists:
+        # Try to link to an existing student record first
+        existing_student = Student.query.first()
+        
+        if existing_student and not existing_student.user_id:
+            # Link existing student to new user
+            student_user = User(
+                username='student1',
+                email=existing_student.email or 'student1@educare.edu',
+                full_name=existing_student.name,
+                role='student',
+                is_active=True
+            )
+            student_user.set_password('password123')
+            db.session.add(student_user)
+            
+            try:
+                db.session.commit()
+                # Link student to user
+                existing_student.user_id = student_user.id
+                db.session.commit()
+                print(f"✅ Created student user linked to student #{existing_student.id} (username: student1, password: password123)")
+                
+                # Assign student to teacher
+                if teacher_profile:
+                    assignment = TeacherStudentAssignment(
+                        teacher_id=teacher_profile.id,
+                        student_id=existing_student.id,
+                        course_name='Introduction to Machine Learning',
+                        semester='Spring 2026',
+                        academic_year='2025-2026',
+                        is_active=True
+                    )
+                    db.session.add(assignment)
+                    db.session.commit()
+                    print(f"✅ Assigned student to teacher1")
+                
+            except Exception as e:
+                db.session.rollback()
+                print(f"❌ Error linking student: {e}")
+        else:
+            # Create new student if none exist  or all are already linked
+            student_user = User(
+                username='student1',
+                email='student1@educare.edu',
+                full_name='John Smith',
+                role='student',
+                is_active=True
+            )
+            student_user.set_password('password123')
+            db.session.add(student_user)
+            
+            student_record = Student(
+                name='John Smith',
+                email='student1@educare.edu',
+                age_at_enrollment=20,
+                previous_qualification=3,
+                scholarship_holder=True,
+                debtor=False,
+                tuition_fees_up_to_date=True,
+                curricular_units_1st_sem_grade=15.5,
+                curricular_units_2nd_sem_grade=14.8,
+                gdp=2.1
+            )
+            db.session.add(student_record)
+            
+            try:
+                db.session.commit()
+                # Link them
+                student_record.user_id = student_user.id
+                db.session.commit()
+                print(f"✅ Created new student user (username: student1, password: password123)")
+                
+                # Assign student to teacher
+                if teacher_profile:
+                    assignment = TeacherStudentAssignment(
+                        teacher_id=teacher_profile.id,
+                        student_id=student_record.id,
+                        course_name='Introduction to Machine Learning',
+                        semester='Spring 2026',
+                        academic_year='2025-2026',
+                        is_active=True
+                    )
+                    db.session.add(assignment)
+                    db.session.commit()
+                    print(f"✅ Assigned student to teacher1")
+                
+            except Exception as e:
+                db.session.rollback()
+                print(f"❌ Error creating student: {e}")
+    else:
+        print("⚠️  Student user already exists")
+    
+    print("\n✅ Demo users seeding complete!")
+    print("\n📋 Demo Credentials:")
+    print("   Admin:    username=admin, password=admin123")
+    print("   Teacher:  username=teacher1, password=password123")
+    print("   Student:  username=student1, password=password123")

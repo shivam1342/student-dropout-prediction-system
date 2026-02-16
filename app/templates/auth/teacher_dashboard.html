@@ -1,0 +1,224 @@
+{% extends "layout.html" %}
+
+{% block title %}Teacher Dashboard - EduCare{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body">
+                    <h2><i class="fas fa-chalkboard-teacher me-2"></i>Welcome, {{ teacher.user_account.full_name }}!</h2>
+                    <p class="mb-0">
+                        <i class="fas fa-building me-2"></i>{{ teacher.department }}
+                        {% if teacher.employee_id %}
+                        | <i class="fas fa-id-badge me-2"></i>ID: {{ teacher.employee_id }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card shadow-sm border-left-primary">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Students
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students }}</div>
+                        </div>
+                        <div class="text-primary">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card shadow-sm border-left-danger">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                High Risk Students
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ high_risk_count }}</div>
+                        </div>
+                        <div class="text-danger">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card shadow-sm border-left-success">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Active Courses
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ assignments|length }}</div>
+                        </div>
+                        <div class="text-success">
+                            <i class="fas fa-book fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card shadow-sm border-left-info">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                At Risk %
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if total_students > 0 %}
+                                    {{ ((high_risk_count / total_students) * 100)|round(1) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="text-info">
+                            <i class="fas fa-chart-pie fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- High Risk Students -->
+    {% if high_risk_students %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 bg-danger text-white">
+                    <h5 class="m-0 font-weight-bold">
+                        <i class="fas fa-exclamation-circle me-2"></i>High Risk Students - Immediate Attention Required
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Risk Score</th>
+                                    <th>Risk Category</th>
+                                    <th>Last Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in high_risk_students %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ item.student.name }}</strong>
+                                    </td>
+                                    <td>{{ item.student.email }}</td>
+                                    <td>
+                                        <span class="badge bg-danger">{{ item.prediction.risk_score }}%</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger">{{ item.prediction.risk_category }}</span>
+                                    </td>
+                                    <td>{{ item.prediction.prediction_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('student_bp.student_profile', student_id=item.student.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- All Students -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-users me-2"></i>My Students
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Enrollment Date</th>
+                                    <th>1st Sem Grade</th>
+                                    <th>2nd Sem Grade</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td><strong>{{ student.name }}</strong></td>
+                                    <td>{{ student.email }}</td>
+                                    <td>{{ student.enrollment_date.strftime('%Y-%m-%d') if student.enrollment_date else 'N/A' }}</td>
+                                    <td>{{ student.curricular_units_1st_sem_grade|round(2) }}</td>
+                                    <td>{{ student.curricular_units_2nd_sem_grade|round(2) }}</td>
+                                    <td>
+                                        <a href="{{ url_for('student_bp.student_profile', student_id=student.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-user"></i> Profile
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No students assigned yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 4px solid #4e73df !important;
+    }
+    .border-left-danger {
+        border-left: 4px solid #e74a3b !important;
+    }
+    .border-left-success {
+        border-left: 4px solid #1cc88a !important;
+    }
+    .border-left-info {
+        border-left: 4px solid #36b9cc !important;
+    }
+</style>
+{% endblock %}
