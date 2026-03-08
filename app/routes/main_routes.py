@@ -2,7 +2,8 @@
 Main Routes
 Handles dashboard, home, and about pages.
 """
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, redirect, url_for, flash
+from flask_login import login_required, current_user
 from app.models import Student, RiskPrediction, GamificationProfile
 from app.controllers.alert_controller import AlertController
 from app.controllers.intervention_controller import InterventionController
@@ -14,6 +15,7 @@ import json
 main_bp = Blueprint('main_bp', __name__)
 
 @main_bp.route('/')
+@login_required
 def dashboard():
     """Enhanced Dashboard with comprehensive stats from all modules."""
     total_students = Student.query.count()
@@ -81,8 +83,13 @@ def about():
     return render_template('about.html')
 
 @main_bp.route('/chatbot')
+@login_required
 def chatbot_page():
-    """Renders the chatbot interface page."""
+    """Renders the chatbot interface page - Students only."""
+    # Only students can access chatbot
+    if not current_user.is_student:
+        flash('Chatbot is only available for students.', 'warning')
+        return redirect(url_for('main_bp.dashboard'))
     return render_template('chatbot.html')
 @main_bp.route('/evaluation')
 def evaluation():

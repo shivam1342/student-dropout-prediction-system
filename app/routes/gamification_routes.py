@@ -3,6 +3,7 @@ Gamification Routes Blueprint
 Handles leaderboard, badges, and gamification features
 """
 from flask import Blueprint, render_template, request, jsonify
+from flask_login import login_required, current_user
 from app.models import GamificationProfile, Student
 from app.controllers.gamification_controller import GamificationController
 from app.extensions import db
@@ -11,6 +12,7 @@ from sqlalchemy import desc
 gamification_bp = Blueprint('gamification_bp', __name__)
 
 @gamification_bp.route('/leaderboard')
+@login_required
 def leaderboard():
     """Main leaderboard page"""
     # Get limit from query params (default 20)

@@ -23,9 +23,14 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                    <!-- Dashboard - All users -->
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'main_bp.dashboard' else '' }}" href="{{ url_for('main_bp.dashboard') }}"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a>
                     </li>
+                    
+                    <!-- Admin/Teacher/Counselor Only -->
+                    {% if current_user.is_teacher or current_user.is_admin or current_user.role == 'counselor' %}
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint and 'student_bp' in request.endpoint else '' }}" href="{{ url_for('student_bp.list_students') }}"><i class="fas fa-users me-1"></i> Students</a>
                     </li>
@@ -36,17 +41,27 @@
                         <a class="nav-link {{ 'active' if request.endpoint and 'intervention_bp' in request.endpoint else '' }}" href="{{ url_for('intervention_bp.interventions_list') }}"><i class="fas fa-hands-helping me-1"></i> Interventions</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint and 'gamification_bp' in request.endpoint else '' }}" href="{{ url_for('gamification_bp.leaderboard') }}"><i class="fas fa-trophy me-1"></i> Leaderboard</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint and 'counselling_bp' in request.endpoint else '' }}" href="{{ url_for('counselling_bp.dashboard') }}"><i class="fas fa-heart-pulse me-1"></i> Counselling</a>
                     </li>
+                    {% endif %}
+                    
+                    <!-- Leaderboard - All users -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint and 'gamification_bp' in request.endpoint else '' }}" href="{{ url_for('gamification_bp.leaderboard') }}"><i class="fas fa-trophy me-1"></i> Leaderboard</a>
+                    </li>
+                    
+                    <!-- Chatbot - Students Only -->
+                    {% if current_user.is_student %}
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'main_bp.chatbot_page' else '' }}" href="{{ url_for('main_bp.chatbot_page') }}"><i class="fas fa-comments me-1"></i> Chatbot</a>
                     </li>
+                    {% endif %}
+                    
+                    <!-- About - All users -->
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'main_bp.about' else '' }}" href="{{ url_for('main_bp.about') }}"><i class="fas fa-info-circle me-1"></i> About</a>
                     </li>
+                    {% endif %}
                     
                     {% if current_user.is_authenticated %}
                     <!-- User Menu (Logged In) -->
@@ -75,7 +90,10 @@
                         </ul>
                     </li>
                     {% else %}
-                    <!-- Login Link (Not Logged In) -->
+                    <!-- Not Logged In - Show About and Login -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'main_bp.about' else '' }}" href="{{ url_for('main_bp.about') }}"><i class="fas fa-info-circle me-1"></i> About</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('auth_bp.login') }}">
                             <i class="fas fa-sign-in-alt me-1"></i> Login

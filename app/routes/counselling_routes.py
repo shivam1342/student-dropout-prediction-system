@@ -3,6 +3,7 @@ Counselling Routes
 Dashboard for viewing recommendations.
 """
 from flask import Blueprint, render_template
+from flask_login import login_required, current_user
 from app.controllers import data_controller, counselling_controller
 from app.models import Student, RiskPrediction
 from sqlalchemy import desc
@@ -10,6 +11,7 @@ from sqlalchemy import desc
 counselling_bp = Blueprint('counselling_bp', __name__)
 
 @counselling_bp.route('/')
+@login_required
 def dashboard():
     """Show high-risk students and their counselling recommendations."""
     high_risk_students = (

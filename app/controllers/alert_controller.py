@@ -51,33 +51,34 @@ class AlertController:
         # Check academic performance
         avg_grade = (student.curricular_units_1st_sem_grade + student.curricular_units_2nd_sem_grade) / 2
         academic_alert = AlertController._check_academic_performance(student, avg_grade)
-        if academic_alert:
+        if academic_alert and not AlertController._alert_exists(student_id, 'Academic', 'Active'):
             alerts_generated.append(academic_alert)
         
         # Check financial status
         financial_alert = AlertController._check_financial_status(student)
-        if financial_alert:
+        if financial_alert and not AlertController._alert_exists(student_id, 'Financial', 'Active'):
             alerts_generated.append(financial_alert)
         
         # Check behavioral data if available
         behavioral_data = BehavioralData.query.filter_by(student_id=student_id).order_by(BehavioralData.record_date.desc()).first()
         if behavioral_data:
             behavioral_alert = AlertController._check_behavioral_indicators(student, behavioral_data)
-            if behavioral_alert:
+            if behavioral_alert and not AlertController._alert_exists(student_id, 'Behavioral', 'Active'):
                 alerts_generated.append(behavioral_alert)
         
         # Check LMS engagement if available
         lms_activity = LMSActivity.query.filter_by(student_id=student_id).order_by(LMSActivity.activity_date.desc()).first()
         if lms_activity:
             engagement_alert = AlertController._check_lms_engagement(student, lms_activity)
-            if engagement_alert:
+            # LMS engagement also creates Academic type alert, check with different approach
+            if engagement_alert and not AlertController._recent_alert_exists(student_id, 'Academic', 'Low LMS Engagement', days=7):
                 alerts_generated.append(engagement_alert)
         
         # Check dropout risk prediction
         latest_prediction = RiskPrediction.query.filter_by(student_id=student_id).order_by(RiskPrediction.prediction_date.desc()).first()
         if latest_prediction:
             dropout_alert = AlertController._check_dropout_risk(student, latest_prediction)
-            if dropout_alert:
+            if dropout_alert and not AlertController._alert_exists(student_id, 'Psychological', 'Active'):
                 alerts_generated.append(dropout_alert)
         
         # Save all generated alerts
@@ -87,6 +88,27 @@ class AlertController:
         db.session.commit()
         
         return alerts_generated
+    
+    @staticmethod
+    def _alert_exists(student_id, alert_type, status='Active'):
+        """Check if an active alert of the given type already exists for this student"""
+        return Alert.query.filter_by(
+            student_id=student_id,
+            alert_type=alert_type,
+            status=status
+        ).first() is not None
+    
+    @staticmethod
+    def _recent_alert_exists(student_id, alert_type, title_contains, days=7):
+        """Check if a similar alert was created recently (within specified days)"""
+        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        return Alert.query.filter(
+            Alert.student_id == student_id,
+            Alert.alert_type == alert_type,
+            Alert.title.contains(title_contains),
+            Alert.created_at > cutoff_date,
+            Alert.status == 'Active'
+        ).first() is not None
     
     @staticmethod
     def _check_academic_performance(student, avg_grade):

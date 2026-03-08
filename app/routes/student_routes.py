@@ -2,24 +2,35 @@
 Student Routes
 Handles CRUD for students and viewing profiles.
 """
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask_login import login_required, current_user
 from app.controllers import data_controller
+from app.controllers.alert_controller import AlertController
 from app.models import Student, Alert, Intervention, LMSActivity, BehavioralData, GamificationProfile
 from app.controllers.gamification_controller import GamificationController
 from app.extensions import db
 from sqlalchemy import desc
+from datetime import datetime
 
 student_bp = Blueprint('student_bp', __name__)
 
 @student_bp.route('/')
+@login_required
 def list_students():
     """Display a list of all students."""
     students = data_controller.get_all_students()
     return render_template('students.html', students=students)
 
 @student_bp.route('/<int:student_id>')
+@login_required
 def student_profile(student_id):
     """Display enhanced student profile with multi-tab interface."""
+    # Security: Students can only view their own profile
+    if current_user.is_student:
+        if not current_user.student_profile or current_user.student_profile.id != student_id:
+            flash('You can only view your own profile.', 'danger')
+            return redirect(url_for('student_bp.student_profile', student_id=current_user.student_profile.id))
+    
     student = data_controller.get_student_by_id(student_id)
     
     # Get alerts for this student
@@ -103,15 +114,71 @@ def student_profile(student_id):
                          gamification_rank=gamification_rank,
                          timeline_events=timeline_events)
 
+@student_bp.route('/<int:student_id>/request-counselling', methods=['POST'])
+@login_required
+def request_counselling(student_id):
+    """Allow students to request counselling help - creates an alert."""
+    # Security: Students can only request counselling for themselves
+    if current_user.is_student:
+        if not current_user.student_profile or current_user.student_profile.id != student_id:
+            flash('You can only request counselling for yourself.', 'danger')
+            return redirect(url_for('student_bp.student_profile', student_id=current_user.student_profile.id))
+    
+    student = Student.query.get_or_404(student_id)
+    
+    # Check if student already has an active counselling request alert
+    existing_alert = Alert.query.filter_by(
+        student_id=student_id,
+        alert_type='Psychological',
+        status='Active'
+    ).filter(Alert.title.contains('Counselling Request')).first()
+    
+    if existing_alert:
+        flash('You already have an active counselling request. A counselor will contact you soon.', 'info')
+    else:
+        # Create a counselling request alert
+        alert = Alert(
+            student_id=student_id,
+            alert_type='Psychological',
+            severity='High',
+            title='Student Counselling Request',
+            description=f'{student.name} has requested counselling support.',
+            context={'student_requested': True, 'request_date': datetime.utcnow().isoformat()},
+            recommended_actions=['Schedule counselling session', 'Contact student within 24 hours', 'Assess student needs'],
+            status='Active'
+        )
+        db.session.add(alert)
+        db.session.commit()
+        
+        flash('Your counselling request has been submitted successfully. A counselor will contact you soon.', 'success')
+    
+    return redirect(url_for('student_bp.student_profile', student_id=student_id))
+
 @student_bp.route('/<int:student_id>/chatbot')
+@login_required
 def student_chatbot(student_id):
-    """Renders the chatbot page for a specific student."""
+    """Renders the chatbot page for a specific student - Students only."""
+    # Only students can access chatbot
+    if not current_user.is_student:
+        flash('Chatbot is only available for students.', 'warning')
+        return redirect(url_for('student_bp.student_profile', student_id=student_id))
+    
+    # Students can only access their own chatbot
+    if current_user.student_profile and current_user.student_profile.id != student_id:
+        flash('You can only access your own chatbot.', 'danger')
+        return redirect(url_for('student_bp.student_profile', student_id=current_user.student_profile.id))
+    
     student = Student.query.get_or_404(student_id)
     return render_template('chatbot.html', student=student)
 
 @student_bp.route('/add', methods=['GET', 'POST'])
+@login_required
 def add_student():
-    """Add a new student."""
+    """Add a new student - Teachers and Admins only."""
+    if not (current_user.is_teacher or current_user.is_admin):
+        flash('Only teachers and administrators can add students.', 'danger')
+        return redirect(url_for('student_bp.list_students'))
+    
     if request.method == 'POST':
         data_controller.add_student(request.form)
         flash('Student added successfully!', 'success')
@@ -119,8 +186,13 @@ def add_student():
     return render_template('student_form.html', form_action='Add Student')
 
 @student_bp.route('/edit/<int:student_id>', methods=['GET', 'POST'])
+@login_required
 def edit_student(student_id):
-    """Edit an existing student."""
+    """Edit an existing student - Teachers and Admins only."""
+    if not (current_user.is_teacher or current_user.is_admin):
+        flash('Only teachers and administrators can edit student information.', 'danger')
+        return redirect(url_for('student_bp.student_profile', student_id=student_id))
+    
     student = data_controller.get_student_by_id(student_id)
     if request.method == 'POST':
         data_controller.update_student(student_id, request.form)
@@ -129,8 +201,13 @@ def edit_student(student_id):
     return render_template('student_form.html', student=student, form_action='Edit Student')
 
 @student_bp.route('/delete/<int:student_id>', methods=['POST'])
+@login_required
 def delete_student(student_id):
-    """Delete a student."""
+    """Delete a student - Admins only."""
+    if not current_user.is_admin:
+        flash('Only administrators can delete students.', 'danger')
+        return redirect(url_for('student_bp.list_students'))
+    
     data_controller.delete_student(student_id)
     flash('Student deleted successfully.', 'danger')
     return redirect(url_for('student_bp.list_students'))

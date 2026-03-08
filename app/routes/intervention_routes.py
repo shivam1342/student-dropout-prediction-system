@@ -3,6 +3,7 @@ Intervention Routes Blueprint
 Handles all intervention management routes
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask_login import login_required, current_user
 from app.models import Intervention, Student, Alert
 from app.controllers.intervention_controller import InterventionController
 from app.extensions import db
@@ -12,6 +13,7 @@ from sqlalchemy import func
 intervention_bp = Blueprint('intervention_bp', __name__)
 
 @intervention_bp.route('/')
+@login_required
 def interventions_list():
     """Main interventions list page with filters"""
     # Get filter parameters
