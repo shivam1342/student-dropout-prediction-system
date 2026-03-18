@@ -11,6 +11,11 @@ from app.extensions import db
 alert_bp = Blueprint('alert_bp', __name__)
 
 
+def _can_manage_alerts(user):
+    """Allow only staff roles to mutate alert state."""
+    return user.is_teacher or user.is_admin or user.is_counselor
+
+
 @alert_bp.route('/')
 @login_required
 def alerts_dashboard():
@@ -29,6 +34,19 @@ def alerts_dashboard():
     # Additional filtering by status
     if status and status != 'All':
         alerts = [a for a in alerts if a.status == status]
+
+    # De-duplicate legacy redundant alerts by keeping the newest per key.
+    deduped = {}
+    for alert in alerts:
+        dedupe_key = (alert.student_id, alert.alert_type, alert.severity, alert.title.strip())
+        if dedupe_key not in deduped:
+            deduped[dedupe_key] = alert
+            continue
+
+        current = deduped[dedupe_key]
+        if (alert.created_at or 0) > (current.created_at or 0):
+            deduped[dedupe_key] = alert
+    alerts = sorted(deduped.values(), key=lambda a: a.created_at or 0, reverse=True)
     
     # Get statistics
     stats = AlertController.get_alert_statistics()
@@ -44,6 +62,7 @@ def alerts_dashboard():
 
 
 @alert_bp.route('/<int:alert_id>')
+@login_required
 def alert_detail(alert_id):
     """Alert detail page"""
     alert = Alert.query.get_or_404(alert_id)
@@ -57,8 +76,13 @@ def alert_detail(alert_id):
 
 
 @alert_bp.route('/<int:alert_id>/acknowledge', methods=['POST'])
+@login_required
 def acknowledge_alert(alert_id):
     """Acknowledge an alert"""
+    if not _can_manage_alerts(current_user):
+        flash('Access denied. Only staff can manage alerts.', 'danger')
+        return redirect(url_for('main_bp.dashboard'))
+
     acknowledged_by = request.form.get('acknowledged_by', 'System Admin')
     notes = request.form.get('notes', '')
     
@@ -81,8 +105,13 @@ def acknowledge_alert(alert_id):
 
 
 @alert_bp.route('/<int:alert_id>/resolve', methods=['POST'])
+@login_required
 def resolve_alert(alert_id):
     """Resolve an alert"""
+    if not _can_manage_alerts(current_user):
+        flash('Access denied. Only staff can manage alerts.', 'danger')
+        return redirect(url_for('main_bp.dashboard'))
+
     resolved_by = request.form.get('resolved_by', 'System Admin')
     action_taken = request.form.get('action_taken', '')
     notes = request.form.get('notes', '')
@@ -110,8 +139,13 @@ def resolve_alert(alert_id):
 
 
 @alert_bp.route('/generate', methods=['POST'])
+@login_required
 def generate_alerts():
     """Generate alerts for all students (batch operation)"""
+    if not _can_manage_alerts(current_user):
+        flash('Access denied. Only staff can generate alerts.', 'danger')
+        return redirect(url_for('main_bp.dashboard'))
+
     result = AlertController.batch_generate_alerts()
     
     flash(f"Generated alerts for {result['total_students_checked']} students. "
@@ -121,6 +155,7 @@ def generate_alerts():
 
 
 @alert_bp.route('/api/stats')
+@login_required
 def alert_stats_api():
     """API endpoint for alert statistics"""
     stats = AlertController.get_alert_statistics()

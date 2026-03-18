@@ -3,24 +3,25 @@
 {% block title %}Leaderboard - EduCare{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 app-dashboard app-remodel-page">
     <!-- Header -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <h2><i class="fas fa-trophy me-2 text-warning"></i>Student Leaderboard</h2>
-            <p class="text-muted">Top performing students based on engagement and achievements</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ url_for('gamification_bp.badge_gallery') }}" class="btn btn-outline-primary">
-                <i class="fas fa-medal me-1"></i> Badge Gallery
-            </a>
+        <div class="col-12">
+            <div class="app-hero-band p-4 p-md-5 app-slide-up">
+                <p class="app-hero-kicker mb-2">Gamification</p>
+                <h2 class="app-hero-title mb-2"><i class="fas fa-trophy me-2"></i>Student Leaderboard</h2>
+                <p class="mb-3">Top performing students based on engagement, consistency, and achievement milestones.</p>
+                <a href="{{ url_for('gamification_bp.badge_gallery') }}" class="btn app-btn-light">
+                    <i class="fas fa-medal me-1"></i> Badge Gallery
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card border-primary">
+            <div class="card app-kpi-card app-kpi-primary border-0">
                 <div class="card-body text-center">
                     <i class="fas fa-users fa-2x text-primary mb-2"></i>
                     <h3 class="mb-0">{{ stats.total_students }}</h3>
@@ -29,7 +30,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-warning">
+            <div class="card app-kpi-card app-kpi-warning border-0">
                 <div class="card-body text-center">
                     <i class="fas fa-star fa-2x text-warning mb-2"></i>
                     <h3 class="mb-0">{{ "{:,.0f}".format(stats.total_points) }}</h3>
@@ -38,7 +39,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-success">
+            <div class="card app-kpi-card app-kpi-success border-0">
                 <div class="card-body text-center">
                     <i class="fas fa-medal fa-2x text-success mb-2"></i>
                     <h3 class="mb-0">{{ stats.total_badges }}</h3>
@@ -47,7 +48,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-info">
+            <div class="card app-kpi-card app-kpi-info border-0">
                 <div class="card-body text-center">
                     <i class="fas fa-fire fa-2x text-danger mb-2"></i>
                     <h3 class="mb-0">{{ stats.highest_streak }}</h3>
@@ -58,7 +59,7 @@
     </div>
 
     <!-- Filters -->
-    <div class="card mb-4">
+    <div class="card app-surface-card border-0 mb-4 app-slide-up">
         <div class="card-body">
             <form method="GET" class="row g-3 align-items-end">
                 <div class="col-md-4">
@@ -82,7 +83,7 @@
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <button type="button" class="btn btn-outline-secondary" onclick="location.href='{{ url_for('gamification_bp.leaderboard') }}'">
+                    <button type="button" class="btn app-btn-secondary-soft" onclick="location.href='{{ url_for('gamification_bp.leaderboard') }}'">
                         <i class="fas fa-redo me-1"></i> Reset Filters
                     </button>
                 </div>
@@ -91,11 +92,11 @@
     </div>
 
     <!-- Leaderboard Table -->
-    <div class="card">
-        <div class="card-header bg-primary text-white">
+    <div class="card app-surface-card border-0 app-slide-up">
+        <div class="card-header">
             <h5 class="mb-0">
                 <i class="fas fa-ranking-star me-2"></i>Rankings
-                <span class="badge bg-light text-dark">Top {{ limit }}</span>
+                <span class="badge bg-secondary ms-2">Top {{ limit }}</span>
             </h5>
         </div>
         <div class="card-body p-0">
@@ -135,7 +136,7 @@
                             </td>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <div class="avatar-circle me-2">
+                                    <div class="app-avatar-token me-2">
                                         {{ profile.student.name[0] if profile.student else '?' }}
                                     </div>
                                     <div>
@@ -210,7 +211,7 @@
                 </table>
             </div>
             {% else %}
-            <div class="alert alert-info m-3">
+            <div class="app-empty-state m-3">
                 <i class="fas fa-info-circle me-2"></i>No students found in the leaderboard.
             </div>
             {% endif %}
@@ -226,13 +227,13 @@
         
         <!-- 2nd Place -->
         <div class="col-md-4 order-md-1">
-            <div class="card border-secondary podium-card">
+            <div class="card app-surface-card podium-card">
                 <div class="card-body text-center">
                     <div class="podium-rank">
                         <i class="fas fa-medal fa-3x text-secondary"></i>
                         <h2 class="mt-2">2nd</h2>
                     </div>
-                    <div class="avatar-circle-large mx-auto mb-3">
+                    <div class="app-avatar-token app-avatar-token-lg mx-auto mb-3">
                         {{ top_students[1].student.name[0] if top_students[1].student else '?' }}
                     </div>
                     <h5>{{ top_students[1].student.name if top_students[1].student else 'Unknown' }}</h5>
@@ -244,13 +245,13 @@
 
         <!-- 1st Place -->
         <div class="col-md-4 order-md-0">
-            <div class="card border-warning podium-card podium-winner">
+            <div class="card app-surface-card podium-card podium-winner">
                 <div class="card-body text-center">
                     <div class="podium-rank">
                         <i class="fas fa-trophy fa-4x text-warning"></i>
                         <h1 class="mt-2">1st</h1>
                     </div>
-                    <div class="avatar-circle-large mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                    <div class="app-avatar-token app-avatar-token-lg mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
                         {{ top_students[0].student.name[0] if top_students[0].student else '?' }}
                     </div>
                     <h4>{{ top_students[0].student.name if top_students[0].student else 'Unknown' }}</h4>
@@ -262,13 +263,13 @@
 
         <!-- 3rd Place -->
         <div class="col-md-4 order-md-2">
-            <div class="card border-warning podium-card" style="border-color: #CD7F32 !important;">
+            <div class="card app-surface-card podium-card" style="border-color: #CD7F32 !important;">
                 <div class="card-body text-center">
                     <div class="podium-rank">
                         <i class="fas fa-award fa-3x" style="color: #CD7F32;"></i>
                         <h2 class="mt-2">3rd</h2>
                     </div>
-                    <div class="avatar-circle-large mx-auto mb-3">
+                    <div class="app-avatar-token app-avatar-token-lg mx-auto mb-3">
                         {{ top_students[2].student.name[0] if top_students[2].student else '?' }}
                     </div>
                     <h5>{{ top_students[2].student.name if top_students[2].student else 'Unknown' }}</h5>
@@ -282,32 +283,6 @@
 </div>
 
 <style>
-.avatar-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-
-.avatar-circle-large {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 2rem;
-}
-
 .podium-card {
     transition: transform 0.3s ease;
 }

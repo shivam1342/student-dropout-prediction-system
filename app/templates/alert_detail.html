@@ -3,16 +3,16 @@
 {% block title %}Alert #{{ alert.id }} - EduCare{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 app-dashboard">
     <!-- Back Button -->
     <div class="mb-3">
-        <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn btn-secondary">
+        <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn app-btn-secondary-soft">
             <i class="fas fa-arrow-left"></i> Back to Alerts
         </a>
     </div>
 
     <!-- Alert Header -->
-    <div class="card mb-4">
+    <div class="card app-surface-card mb-4">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
@@ -62,7 +62,7 @@
 
     <!-- Trigger Factors -->
     {% if alert.trigger_factors %}
-    <div class="card mb-4">
+    <div class="card app-surface-card mb-4">
         <div class="card-header">
             <h5 class="mb-0"><i class="fas fa-chart-line"></i> Trigger Factors</h5>
         </div>
@@ -80,7 +80,7 @@
 
     <!-- Recommended Actions -->
     {% if alert.recommended_actions %}
-    <div class="card mb-4">
+    <div class="card app-surface-card mb-4">
         <div class="card-header">
             <h5 class="mb-0"><i class="fas fa-tasks"></i> Recommended Actions</h5>
         </div>
@@ -95,7 +95,7 @@
     {% endif %}
 
     <!-- Status Timeline -->
-    <div class="card mb-4">
+    <div class="card app-surface-card mb-4">
         <div class="card-header">
             <h5 class="mb-0"><i class="fas fa-history"></i> Status Timeline</h5>
         </div>
@@ -133,7 +133,7 @@
 
     <!-- Notes -->
     {% if alert.notes %}
-    <div class="card mb-4">
+    <div class="card app-surface-card mb-4">
         <div class="card-header">
             <h5 class="mb-0"><i class="fas fa-sticky-note"></i> Notes</h5>
         </div>
@@ -145,7 +145,7 @@
 
     <!-- Actions -->
     {% if alert.status == 'Active' %}
-    <div class="card">
+    <div class="card app-surface-card">
         <div class="card-header">
             <h5 class="mb-0"><i class="fas fa-tools"></i> Actions</h5>
         </div>
@@ -155,14 +155,14 @@
                     <form method="POST" action="{{ url_for('alert_bp.acknowledge_alert', alert_id=alert.id) }}">
                         <div class="mb-3">
                             <label class="form-label">Acknowledged By</label>
-                            <input type="text" class="form-control" name="acknowledged_by" 
+                            <input type="text" class="form-control auth-input" name="acknowledged_by" 
                                    value="System Admin" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Notes</label>
-                            <textarea class="form-control" name="notes" rows="2"></textarea>
+                            <textarea class="form-control auth-input" name="notes" rows="2"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-warning w-100">
+                        <button type="submit" class="btn app-btn-warn w-100">
                             <i class="fas fa-check"></i> Acknowledge Alert
                         </button>
                     </form>
@@ -171,14 +171,14 @@
                     <form method="POST" action="{{ url_for('alert_bp.resolve_alert', alert_id=alert.id) }}">
                         <div class="mb-3">
                             <label class="form-label">Resolved By</label>
-                            <input type="text" class="form-control" name="resolved_by" 
+                            <input type="text" class="form-control auth-input" name="resolved_by" 
                                    value="System Admin" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Action Taken *</label>
-                            <textarea class="form-control" name="action_taken" rows="2" required></textarea>
+                            <textarea class="form-control auth-input" name="action_taken" rows="2" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-success w-100">
+                        <button type="submit" class="btn app-btn-success w-100">
                             <i class="fas fa-check-double"></i> Resolve Alert
                         </button>
                     </form>

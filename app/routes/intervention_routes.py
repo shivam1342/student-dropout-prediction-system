@@ -4,13 +4,26 @@ Handles all intervention management routes
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from app.models import Intervention, Student, Alert
+from app.models import Intervention, Student, Alert, User
 from app.controllers.intervention_controller import InterventionController
 from app.extensions import db
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
 intervention_bp = Blueprint('intervention_bp', __name__)
+
+
+def _can_manage_interventions(user):
+    """Allow only teaching/support staff to create or modify interventions."""
+    return user.is_teacher or user.is_admin or user.is_counselor
+
+
+def _get_assignee_candidates():
+    """Return active staff users that can be assigned to interventions."""
+    return User.query.filter(
+        User.is_active == True,
+        User.role.in_(['teacher', 'admin', 'counselor'])
+    ).order_by(User.full_name).all()
 
 @intervention_bp.route('/')
 @login_required
@@ -54,8 +67,13 @@ def interventions_list():
                          student_id=student_id)
 
 @intervention_bp.route('/create', methods=['GET', 'POST'])
+@login_required
 def create_intervention():
     """Create new intervention (manual)"""
+    if not _can_manage_interventions(current_user):
+        flash('Only teachers, counselors, and administrators can create interventions.', 'danger')
+        return redirect(url_for('intervention_bp.interventions_list'))
+
     if request.method == 'POST':
         try:
             # Get form data
@@ -65,6 +83,11 @@ def create_intervention():
             scheduled_date_str = request.form.get('scheduled_date')
             description = request.form.get('description')
             assigned_to = request.form.get('assigned_to')
+
+            if current_user.is_teacher:
+                assigned_to = current_user.full_name
+            elif not assigned_to:
+                assigned_to = current_user.full_name
             
             # Parse scheduled date
             scheduled_date = datetime.strptime(scheduled_date_str, '%Y-%m-%d')
@@ -88,11 +111,24 @@ def create_intervention():
     
     # GET request - show form
     students = Student.query.order_by(Student.name).all()
-    return render_template('intervention_form.html', students=students, intervention=None)
+    preselected_student_id = request.args.get('student_id', type=int)
+    return render_template(
+        'intervention_form.html',
+        students=students,
+        intervention=None,
+        assignees=_get_assignee_candidates(),
+        preselected_student_id=preselected_student_id,
+        today=datetime.now().strftime('%Y-%m-%d')
+    )
 
 @intervention_bp.route('/create-from-alert/<int:alert_id>', methods=['GET', 'POST'])
+@login_required
 def create_from_alert(alert_id):
     """Create intervention from an alert"""
+    if not _can_manage_interventions(current_user):
+        flash('Only teachers, counselors, and administrators can create interventions.', 'danger')
+        return redirect(url_for('intervention_bp.interventions_list'))
+
     alert = Alert.query.get_or_404(alert_id)
     
     if request.method == 'POST':
@@ -102,6 +138,11 @@ def create_from_alert(alert_id):
             scheduled_date_str = request.form.get('scheduled_date')
             description = request.form.get('description')
             assigned_to = request.form.get('assigned_to')
+
+            if current_user.is_teacher:
+                assigned_to = current_user.full_name
+            elif not assigned_to:
+                assigned_to = current_user.full_name
             
             scheduled_date = datetime.strptime(scheduled_date_str, '%Y-%m-%d')
             
@@ -127,15 +168,18 @@ def create_from_alert(alert_id):
     return render_template('intervention_form.html',
                          students=None,
                          intervention=None,
+                         assignees=_get_assignee_candidates(),
                          alert=alert,
                          prefill={
                              'student_id': alert.student_id,
                              'description': f"Intervention for alert: {alert.title}",
                              'intervention_type': alert.alert_type,
                              'priority': alert.severity
-                         })
+                         },
+                         today=datetime.now().strftime('%Y-%m-%d'))
 
 @intervention_bp.route('/<int:intervention_id>')
+@login_required
 def intervention_detail(intervention_id):
     """Intervention detail page"""
     intervention = Intervention.query.get_or_404(intervention_id)
@@ -151,8 +195,13 @@ def intervention_detail(intervention_id):
                          other_interventions=other_interventions)
 
 @intervention_bp.route('/<int:intervention_id>/complete', methods=['GET', 'POST'])
+@login_required
 def complete_intervention(intervention_id):
     """Complete an intervention"""
+    if not _can_manage_interventions(current_user):
+        flash('Only teachers, counselors, and administrators can complete interventions.', 'danger')
+        return redirect(url_for('intervention_bp.interventions_list'))
+
     intervention = Intervention.query.get_or_404(intervention_id)
     
     if request.method == 'POST':
@@ -188,8 +237,13 @@ def complete_intervention(intervention_id):
     return render_template('intervention_complete.html', intervention=intervention)
 
 @intervention_bp.route('/<int:intervention_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_intervention(intervention_id):
     """Edit an intervention"""
+    if not _can_manage_interventions(current_user):
+        flash('Only teachers, counselors, and administrators can edit interventions.', 'danger')
+        return redirect(url_for('intervention_bp.interventions_list'))
+
     intervention = Intervention.query.get_or_404(intervention_id)
     
     if request.method == 'POST':
@@ -198,7 +252,7 @@ def edit_intervention(intervention_id):
             intervention.priority = request.form.get('priority')
             intervention.scheduled_date = datetime.strptime(request.form.get('scheduled_date'), '%Y-%m-%d')
             intervention.description = request.form.get('description')
-            intervention.assigned_to = request.form.get('assigned_to')
+            intervention.assigned_to = current_user.full_name if current_user.is_teacher else (request.form.get('assigned_to') or current_user.full_name)
             
             db.session.commit()
             
@@ -212,7 +266,9 @@ def edit_intervention(intervention_id):
     students = Student.query.order_by(Student.name).all()
     return render_template('intervention_form.html',
                          students=students,
-                         intervention=intervention)
+                         intervention=intervention,
+                         assignees=_get_assignee_candidates(),
+                         today=datetime.now().strftime('%Y-%m-%d'))
 
 @intervention_bp.route('/calendar')
 def calendar_view():

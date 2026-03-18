@@ -15,8 +15,9 @@ import re
 import json
 
 # --- Configuration ---
-DATASET_PATH = os.path.join(os.path.dirname(__file__), '..', 'dataset.csv')
-MODEL_DIR = os.path.dirname(__file__)
+DATASET_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'dataset.csv')
+MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
+os.makedirs(MODEL_DIR, exist_ok=True)
 
 def load_and_preprocess_data():
     """Loads the dataset, cleans column names, and preprocesses the target variable."""
@@ -44,7 +45,7 @@ def load_and_preprocess_data():
 
 def prepare_data(df):
     """Prepare features and target for training."""
-    # Use more features for better accuracy
+    # Keep features aligned with runtime prediction input from Student.to_dict().
     features = [
         'previous_qualification',
         'age_at_enrollment',
@@ -53,13 +54,7 @@ def prepare_data(df):
         'tuition_fees_up_to_date',
         'curricular_units_1st_sem_grade',
         'curricular_units_2nd_sem_grade',
-        'curricular_units_1st_sem_enrolled',
-        'curricular_units_1st_sem_approved',
-        'curricular_units_2nd_sem_enrolled',
-        'curricular_units_2nd_sem_approved',
-        'gdp',
-        'unemployment_rate',
-        'inflation_rate'
+        'gdp'
     ]
     
     # Handle missing values

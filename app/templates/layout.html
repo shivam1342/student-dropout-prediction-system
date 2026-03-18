@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}AI Counselling System{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20260318-remodel-2') }}">
     {% block head %}{% endblock %}
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+<body class="app-shell">
+    <nav class="navbar navbar-expand-lg app-nav">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('main_bp.dashboard') }}">
+            <a class="navbar-brand app-brand" href="{{ url_for('main_bp.dashboard') }}">
                 <i class="fas fa-brain me-2"></i> AI Dropout Prediction
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,53 +27,59 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
-                    <!-- Dashboard - All users -->
+                    <!-- Role-specific dashboard -->
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'main_bp.dashboard' else '' }}" href="{{ url_for('main_bp.dashboard') }}"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a>
+                        {% if current_user.is_teacher %}
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint and ('auth_bp.teacher_dashboard' in request.endpoint or 'auth_bp.teacher_manage_students' in request.endpoint) else '' }}" href="{{ url_for('auth_bp.teacher_dashboard') }}"><i class="fas fa-tachometer-alt me-1"></i> Teacher Dashboard</a>
+                        {% elif current_user.is_student %}
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint == 'auth_bp.student_dashboard' else '' }}" href="{{ url_for('auth_bp.student_dashboard') }}"><i class="fas fa-tachometer-alt me-1"></i> Student Dashboard</a>
+                        {% else %}
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint == 'main_bp.dashboard' else '' }}" href="{{ url_for('main_bp.dashboard') }}"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a>
+                        {% endif %}
                     </li>
                     
                     <!-- Admin/Teacher/Counselor Only -->
                     {% if current_user.is_teacher or current_user.is_admin or current_user.role == 'counselor' %}
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint and 'student_bp' in request.endpoint else '' }}" href="{{ url_for('student_bp.list_students') }}"><i class="fas fa-users me-1"></i> Students</a>
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint and 'student_bp' in request.endpoint else '' }}" href="{{ url_for('student_bp.list_students') }}"><i class="fas fa-users me-1"></i> Students</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint and 'alert_bp' in request.endpoint else '' }}" href="{{ url_for('alert_bp.alerts_dashboard') }}"><i class="fas fa-bell me-1"></i> Alerts</a>
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint and 'alert_bp' in request.endpoint else '' }}" href="{{ url_for('alert_bp.alerts_dashboard') }}"><i class="fas fa-bell me-1"></i> Alerts</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint and 'intervention_bp' in request.endpoint else '' }}" href="{{ url_for('intervention_bp.interventions_list') }}"><i class="fas fa-hands-helping me-1"></i> Interventions</a>
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint and 'intervention_bp' in request.endpoint else '' }}" href="{{ url_for('intervention_bp.interventions_list') }}"><i class="fas fa-hands-helping me-1"></i> Interventions</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint and 'counselling_bp' in request.endpoint else '' }}" href="{{ url_for('counselling_bp.dashboard') }}"><i class="fas fa-heart-pulse me-1"></i> Counselling</a>
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint and 'counselling_bp' in request.endpoint else '' }}" href="{{ url_for('counselling_bp.dashboard') }}"><i class="fas fa-heart-pulse me-1"></i> Counselling</a>
                     </li>
                     {% endif %}
                     
                     <!-- Leaderboard - All users -->
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint and 'gamification_bp' in request.endpoint else '' }}" href="{{ url_for('gamification_bp.leaderboard') }}"><i class="fas fa-trophy me-1"></i> Leaderboard</a>
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint and 'gamification_bp' in request.endpoint else '' }}" href="{{ url_for('gamification_bp.leaderboard') }}"><i class="fas fa-trophy me-1"></i> Leaderboard</a>
                     </li>
                     
                     <!-- Chatbot - Students Only -->
                     {% if current_user.is_student %}
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'main_bp.chatbot_page' else '' }}" href="{{ url_for('main_bp.chatbot_page') }}"><i class="fas fa-comments me-1"></i> Chatbot</a>
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint == 'main_bp.chatbot_page' else '' }}" href="{{ url_for('main_bp.chatbot_page') }}"><i class="fas fa-comments me-1"></i> Chatbot</a>
                     </li>
                     {% endif %}
                     
                     <!-- About - All users -->
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'main_bp.about' else '' }}" href="{{ url_for('main_bp.about') }}"><i class="fas fa-info-circle me-1"></i> About</a>
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint == 'main_bp.about' else '' }}" href="{{ url_for('main_bp.about') }}"><i class="fas fa-info-circle me-1"></i> About</a>
                     </li>
                     {% endif %}
                     
                     {% if current_user.is_authenticated %}
                     <!-- User Menu (Logged In) -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link app-nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user-circle me-1"></i> {{ current_user.full_name or current_user.username }}
                             <span class="badge bg-light text-primary ms-1">{{ current_user.role|upper }}</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <ul class="dropdown-menu dropdown-menu-end app-dropdown-menu" aria-labelledby="userDropdown">
                             {% if current_user.is_teacher %}
                             <li><a class="dropdown-item" href="{{ url_for('auth_bp.teacher_dashboard') }}">
                                 <i class="fas fa-tachometer-alt me-2"></i>My Dashboard
@@ -92,10 +101,10 @@
                     {% else %}
                     <!-- Not Logged In - Show About and Login -->
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'main_bp.about' else '' }}" href="{{ url_for('main_bp.about') }}"><i class="fas fa-info-circle me-1"></i> About</a>
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint == 'main_bp.about' else '' }}" href="{{ url_for('main_bp.about') }}"><i class="fas fa-info-circle me-1"></i> About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth_bp.login') }}">
+                        <a class="nav-link app-nav-link" href="{{ url_for('auth_bp.login') }}">
                             <i class="fas fa-sign-in-alt me-1"></i> Login
                         </a>
                     </li>
@@ -105,11 +114,11 @@
         </div>
     </nav>
 
-    <main class="container mt-4">
+    <main class="container mt-4 app-main">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <div class="alert alert-{{ category }} app-alert alert-dismissible fade show" role="alert">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -124,9 +133,9 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-light text-center text-lg-start mt-5">
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
-            © 2024 AI-Based Dropout Prediction and Counselling System
+    <footer class="app-footer text-center mt-5">
+        <div class="text-center p-3">
+            © 2026 AI-Based Dropout Prediction and Counselling System
         </div>
     </footer>
 

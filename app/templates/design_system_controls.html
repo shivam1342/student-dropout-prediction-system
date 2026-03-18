@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block title %}Design System Controls{% endblock %}
+
+{% block content %}
+<div class="ds-page mb-5">
+    <div class="ds-header mb-4">
+        <p class="ds-kicker mb-2">CONTROLS</p>
+        <h1 class="ds-title mb-2">Interactive Elements</h1>
+        <p class="ds-subtitle mb-0">
+            Buttons, form fields, selection controls, and slider states using the same soft UI system.
+        </p>
+    </div>
+
+    <section class="ds-section ds-raised mb-4">
+        <h2 class="ds-section-title">Primary Button States</h2>
+        <div class="ds-controls-grid">
+            <div class="ds-control-card">
+                <p class="ds-label">Default</p>
+                <button class="ds-btn-primary" type="button">Submit Now</button>
+            </div>
+            <div class="ds-control-card">
+                <p class="ds-label">Pressed</p>
+                <button class="ds-btn-primary is-pressed" type="button">
+                    <span class="ds-spinner" aria-hidden="true"></span>
+                    Sending...
+                </button>
+            </div>
+            <div class="ds-control-card">
+                <p class="ds-label">Disabled</p>
+                <button class="ds-btn-primary" type="button" disabled>Not Available</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="ds-section ds-raised mb-4">
+        <h2 class="ds-section-title">Text Fields</h2>
+        <div class="ds-form-grid">
+            <div>
+                <label class="ds-field-label" for="normal-email">Email</label>
+                <input class="ds-input" id="normal-email" type="email" placeholder="name@example.com" />
+                <p class="ds-helper">Helper text: We only use this for notifications.</p>
+            </div>
+            <div>
+                <label class="ds-field-label" for="focus-email">Focused</label>
+                <input class="ds-input is-focused" id="focus-email" type="email" value="user@school.edu" />
+                <p class="ds-helper">Helper text: Focus state uses teal accent border.</p>
+            </div>
+            <div>
+                <label class="ds-field-label" for="error-email">Error</label>
+                <input class="ds-input is-error" id="error-email" type="email" value="invalid-email" />
+                <p class="ds-helper is-error-text">Error: Invalid email format</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="ds-section ds-raised mb-4">
+        <h2 class="ds-section-title">Selection Controls</h2>
+        <div class="ds-selection-grid">
+            <label class="ds-check-row" for="notify">
+                <input class="ds-checkbox" type="checkbox" id="notify" checked />
+                <span>Checkbox</span>
+            </label>
+
+            <label class="ds-check-row" for="risk-high">
+                <input class="ds-radio" type="radio" id="risk-high" name="risk" checked />
+                <span>Radio</span>
+            </label>
+
+            <div class="ds-toggle-wrap">
+                <p class="ds-label mb-2">Toggle Switch</p>
+                <label class="ds-toggle" for="toggle-status">
+                    <input type="checkbox" id="toggle-status" checked />
+                    <span class="ds-toggle-track"></span>
+                    <span class="ds-toggle-text">ON / OFF</span>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <section class="ds-section ds-raised mb-4">
+        <h2 class="ds-section-title">Slider</h2>
+        <p class="ds-label">75% knob position</p>
+        <div class="ds-slider-wrap">
+            <div class="ds-slider-track">
+                <div class="ds-slider-fill" style="width: 75%;"></div>
+                <div class="ds-slider-knob" style="left: 75%;"></div>
+            </div>
+            <p class="ds-helper mb-0">SPACING: 8PX, 16PX, 24PX</p>
+        </div>
+    </section>
+
+    <section class="ds-section ds-raised">
+        <h2 class="ds-section-title">Next Section</h2>
+        <p class="ds-section-subtitle">Foundations is complete. Next I can implement Navigation.</p>
+        <a class="ds-link-chip" href="{{ url_for('main_bp.design_system_foundations') }}">Back to Foundations</a>
+    </section>
+</div>
+{% endblock %}

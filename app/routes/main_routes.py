@@ -118,3 +118,17 @@ def evaluation():
         auc_scores=auc_scores,
         best_model=best_model
     )
+
+
+@main_bp.route('/design-system/foundations')
+@login_required
+def design_system_foundations():
+    """Design System Foundations page for the new project-wide UI/UX refresh."""
+    return render_template('design_system_foundations.html')
+
+
+@main_bp.route('/design-system/controls')
+@login_required
+def design_system_controls():
+    """Design System Controls page for component states and form patterns."""
+    return render_template('design_system_controls.html')

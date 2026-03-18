@@ -3,15 +3,15 @@
 {% block title %}Teacher Dashboard - EduCare{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 app-dashboard app-remodel-page">
     <!-- Welcome Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-primary text-white shadow">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+            <div class="app-hero-band p-4 p-md-5 app-slide-up">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <div>
-                            <h2><i class="fas fa-chalkboard-teacher me-2"></i>Welcome, {{ teacher.user_account.full_name }}!</h2>
+                            <p class="app-hero-kicker mb-2">Teacher Workspace</p>
+                            <h2 class="app-hero-title"><i class="fas fa-chalkboard-teacher me-2"></i>{{ teacher.user_account.full_name }}</h2>
                             <p class="mb-0">
                                 <i class="fas fa-building me-2"></i>{{ teacher.department }}
                                 {% if teacher.employee_id %}
@@ -20,12 +20,11 @@
                             </p>
                         </div>
                         <div>
-                            <a href="{{ url_for('auth_bp.teacher_manage_students') }}" class="btn btn-light btn-lg">
+                            <a href="{{ url_for('auth_bp.teacher_manage_students') }}" class="btn app-btn-light btn-lg">
                                 <i class="fas fa-users-cog me-2"></i>Manage Students
                             </a>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -33,16 +32,16 @@
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card shadow-sm border-left-primary">
+            <div class="card app-kpi-card app-kpi-primary border-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1 app-kpi-label">
                                 Total Students
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students }}</div>
+                            <div class="h5 mb-0 font-weight-bold app-kpi-value">{{ total_students }}</div>
                         </div>
-                        <div class="text-primary">
+                        <div class="app-kpi-icon">
                             <i class="fas fa-users fa-2x"></i>
                         </div>
                     </div>
@@ -51,16 +50,16 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card shadow-sm border-left-danger">
+            <div class="card app-kpi-card app-kpi-danger border-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1 app-kpi-label">
                                 High Risk Students
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ high_risk_count }}</div>
+                            <div class="h5 mb-0 font-weight-bold app-kpi-value">{{ high_risk_count }}</div>
                         </div>
-                        <div class="text-danger">
+                        <div class="app-kpi-icon">
                             <i class="fas fa-exclamation-triangle fa-2x"></i>
                         </div>
                     </div>
@@ -69,16 +68,16 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card shadow-sm border-left-success">
+            <div class="card app-kpi-card app-kpi-success border-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1 app-kpi-label">
                                 Active Courses
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ assignments|length }}</div>
+                            <div class="h5 mb-0 font-weight-bold app-kpi-value">{{ assignments|length }}</div>
                         </div>
-                        <div class="text-success">
+                        <div class="app-kpi-icon">
                             <i class="fas fa-book fa-2x"></i>
                         </div>
                     </div>
@@ -87,14 +86,14 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card shadow-sm border-left-info">
+            <div class="card app-kpi-card app-kpi-info border-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1 app-kpi-label">
                                 At Risk %
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            <div class="h5 mb-0 font-weight-bold app-kpi-value">
                                 {% if total_students > 0 %}
                                     {{ ((high_risk_count / total_students) * 100)|round(1) }}%
                                 {% else %}
@@ -102,7 +101,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <div class="text-info">
+                        <div class="app-kpi-icon">
                             <i class="fas fa-chart-pie fa-2x"></i>
                         </div>
                     </div>
@@ -115,8 +114,8 @@
     {% if high_risk_students %}
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3 bg-danger text-white">
+            <div class="card app-surface-card border-0">
+                <div class="card-header py-3 app-table-head-danger">
                     <h5 class="m-0 font-weight-bold">
                         <i class="fas fa-exclamation-circle me-2"></i>High Risk Students - Immediate Attention Required
                     </h5>
@@ -149,7 +148,7 @@
                                     </td>
                                     <td>{{ item.prediction.prediction_date.strftime('%Y-%m-%d %H:%M') }}</td>
                                     <td>
-                                        <a href="{{ url_for('student_bp.student_profile', student_id=item.student.id) }}" class="btn btn-sm btn-primary">
+                                        <a href="{{ url_for('student_bp.student_profile', student_id=item.student.id) }}" class="btn btn-sm auth-btn-primary">
                                             <i class="fas fa-eye"></i> View
                                         </a>
                                     </td>
@@ -167,9 +166,9 @@
     <!-- All Students -->
     <div class="row">
         <div class="col-12">
-            <div class="card shadow">
+            <div class="card app-surface-card border-0">
                 <div class="card-header py-3">
-                    <h5 class="m-0 font-weight-bold text-primary">
+                    <h5 class="m-0 font-weight-bold app-title-teal">
                         <i class="fas fa-users me-2"></i>My Students
                     </h5>
                 </div>
@@ -196,7 +195,7 @@
                                     <td>{{ student.curricular_units_1st_sem_grade|round(2) }}</td>
                                     <td>{{ student.curricular_units_2nd_sem_grade|round(2) }}</td>
                                     <td>
-                                        <a href="{{ url_for('student_bp.student_profile', student_id=student.id) }}" class="btn btn-sm btn-info">
+                                        <a href="{{ url_for('student_bp.student_profile', student_id=student.id) }}" class="btn btn-sm app-btn-info">
                                             <i class="fas fa-user"></i> Profile
                                         </a>
                                     </td>
@@ -206,7 +205,7 @@
                         </table>
                     </div>
                     {% else %}
-                    <div class="alert alert-info">
+                    <div class="app-empty-state">
                         <i class="fas fa-info-circle me-2"></i>No students assigned yet.
                     </div>
                     {% endif %}
@@ -215,19 +214,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .border-left-primary {
-        border-left: 4px solid #4e73df !important;
-    }
-    .border-left-danger {
-        border-left: 4px solid #e74a3b !important;
-    }
-    .border-left-success {
-        border-left: 4px solid #1cc88a !important;
-    }
-    .border-left-info {
-        border-left: 4px solid #36b9cc !important;
-    }
-</style>
 {% endblock %}

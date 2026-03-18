@@ -3,39 +3,39 @@
 {% block title %}Login - EduCare{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h3><i class="fas fa-sign-in-alt me-2"></i>Login to EduCare</h3>
+<div class="container auth-shell">
+    <div class="row justify-content-center mt-4 mt-md-5">
+        <div class="col-md-7 col-lg-5">
+            <div class="card auth-card border-0">
+                <div class="card-header auth-card-header text-center py-4 border-0">
+                    <h3 class="mb-1"><i class="fas fa-sign-in-alt me-2"></i>Login to EduCare</h3>
                     <p class="mb-0 small">AI-Based Dropout Prediction System</p>
                 </div>
                 <div class="card-body p-4">
                     <form method="POST" action="{{ url_for('auth_bp.login') }}">
                         <div class="mb-3">
-                            <label for="username" class="form-label">
+                            <label for="username" class="form-label auth-label">
                                 <i class="fas fa-user me-1"></i>Username or Email
                             </label>
-                            <input type="text" class="form-control form-control-lg" id="username" name="username" required autofocus>
+                            <input type="text" class="form-control form-control-lg auth-input" id="username" name="username" required autofocus>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="password" class="form-label">
+                            <label for="password" class="form-label auth-label">
                                 <i class="fas fa-lock me-1"></i>Password
                             </label>
-                            <input type="password" class="form-control form-control-lg" id="password" name="password" required>
+                            <input type="password" class="form-control form-control-lg auth-input" id="password" name="password" required>
                         </div>
                         
                         <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <input type="checkbox" class="form-check-input auth-check" id="remember" name="remember">
                             <label class="form-check-label" for="remember">
                                 Remember me
                             </label>
                         </div>
                         
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn auth-btn-primary btn-lg">
                                 <i class="fas fa-sign-in-alt me-2"></i>Login
                             </button>
                         </div>
@@ -45,13 +45,13 @@
                     
                     <div class="text-center">
                         <p class="text-muted mb-2">Don't have an account?</p>
-                        <a href="{{ url_for('auth_bp.register') }}" class="btn btn-outline-primary">
+                        <a href="{{ url_for('auth_bp.register') }}" class="btn auth-btn-outline">
                             <i class="fas fa-user-plus me-2"></i>Create Account
                         </a>
                     </div>
                     
                     <div class="text-center mt-3">
-                        <a href="{{ url_for('main_bp.dashboard') }}" class="text-decoration-none small">
+                        <a href="{{ url_for('main_bp.dashboard') }}" class="auth-link small">
                             <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
                         </a>
                     </div>
@@ -59,10 +59,10 @@
             </div>
             
             <!-- Demo Credentials Card -->
-            <div class="card mt-3 border-info">
+            <div class="card mt-3 auth-demo-card border-0">
                 <div class="card-body">
-                    <h6 class="text-info"><i class="fas fa-info-circle me-2"></i>Demo Credentials</h6>
-                    <small class="text-muted">
+                    <h6 class="mb-2"><i class="fas fa-info-circle me-2"></i>Demo Credentials</h6>
+                    <small>
                         <strong>Teacher:</strong> teacher1 / password123<br>
                         <strong>Student:</strong> student1 / password123<br>
                         <strong>Admin:</strong> admin / admin123

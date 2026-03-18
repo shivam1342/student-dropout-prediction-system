@@ -2,78 +2,85 @@
 {% block title %}EduCare Dashboard{% endblock %}
 
 {% block content %}
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-tachometer-alt me-2"></i>EduCare Dashboard</h1>
-    <div>
-        <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn btn-sm btn-warning">
+<div class="app-remodel-page">
+<div class="app-hero-band p-4 p-md-5 mb-4 app-slide-up">
+    <div class="d-sm-flex align-items-center justify-content-between">
+        <div>
+            <p class="app-hero-kicker mb-2">Academic Success Platform</p>
+            <h1 class="h3 mb-1 app-hero-title"><i class="fas fa-tachometer-alt me-2"></i>EduCare Dashboard</h1>
+            <p class="mb-0">Real-time student risk analytics, interventions, and engagement insights.</p>
+        </div>
+        <div>
+        <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn btn-sm app-btn-warn">
             <i class="fas fa-bell"></i> Alerts
         </a>
-        <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn btn-sm btn-info">
+        <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn btn-sm app-btn-info">
             <i class="fas fa-hands-helping"></i> Interventions
         </a>
-        <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-sm btn-success">
+        <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-sm app-btn-success">
             <i class="fas fa-trophy"></i> Leaderboard
         </a>
+        </div>
     </div>
 </div>
 
 <!-- Primary Summary Cards -->
 <div class="row">
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card app-kpi-card app-kpi-primary border-0 h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Students</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_students }}</div>
+                        <div class="text-xs font-weight-bold text-uppercase mb-1 app-kpi-label">Total Students</div>
+                        <div class="h5 mb-0 font-weight-bold app-kpi-value">{{ stats.total_students }}</div>
                     </div>
-                    <div class="col-auto">
-                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    <div class="col-auto app-kpi-icon">
+                        <i class="fas fa-users fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card app-kpi-card app-kpi-danger border-0 h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">At-Risk Percentage</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.at_risk_percentage }}%</div>
+                        <div class="text-xs font-weight-bold text-uppercase mb-1 app-kpi-label">At-Risk Percentage</div>
+                        <div class="h5 mb-0 font-weight-bold app-kpi-value">{{ stats.at_risk_percentage }}%</div>
                     </div>
-                    <div class="col-auto">
-                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    <div class="col-auto app-kpi-icon">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card app-kpi-card app-kpi-warning border-0 h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Active Alerts</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.alerts.total_active if stats.alerts else 0 }}</div>
+                        <div class="text-xs font-weight-bold text-uppercase mb-1 app-kpi-label">Active Alerts</div>
+                        <div class="h5 mb-0 font-weight-bold app-kpi-value">{{ stats.alerts.total_active if stats.alerts else 0 }}</div>
                     </div>
-                    <div class="col-auto">
-                        <i class="fas fa-bell fa-2x text-gray-300"></i>
+                    <div class="col-auto app-kpi-icon">
+                        <i class="fas fa-bell fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-info shadow h-100 py-2">
+        <div class="card app-kpi-card app-kpi-info border-0 h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Interventions</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.interventions.total if stats.interventions else 0 }}</div>
+                        <div class="text-xs font-weight-bold text-uppercase mb-1 app-kpi-label">Interventions</div>
+                        <div class="h5 mb-0 font-weight-bold app-kpi-value">{{ stats.interventions.total if stats.interventions else 0 }}</div>
                     </div>
-                    <div class="col-auto">
-                        <i class="fas fa-hands-helping fa-2x text-gray-300"></i>
+                    <div class="col-auto app-kpi-icon">
+                        <i class="fas fa-hands-helping fa-2x"></i>
                     </div>
                 </div>
             </div>
@@ -85,9 +92,9 @@
 {% if stats.alerts %}
 <div class="row mb-4">
     <div class="col-md-12">
-        <div class="card shadow">
+        <div class="card app-surface-card border-0">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-warning">
+                <h6 class="m-0 font-weight-bold app-title-teal">
                     <i class="fas fa-bell me-2"></i>Alert Overview
                 </h6>
                 <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn btn-sm btn-outline-warning">View All</a>
@@ -134,9 +141,9 @@
     <!-- ML Model Comparison -->
     {% if model_comparison %}
     <div class="col-lg-6 mb-4">
-        <div class="card shadow">
+        <div class="card app-surface-card border-0">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-primary">
+                <h6 class="m-0 font-weight-bold app-title-teal">
                     <i class="fas fa-brain me-2"></i>ML Model Performance
                 </h6>
                 <a href="{{ url_for('main_bp.evaluation') }}" class="btn btn-sm btn-outline-primary">
@@ -181,9 +188,9 @@
     <!-- Top Gamification Leaderboard -->
     {% if top_gamification %}
     <div class="col-lg-6 mb-4">
-        <div class="card shadow">
+        <div class="card app-surface-card border-0">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-success">
+                <h6 class="m-0 font-weight-bold app-title-teal">
                     <i class="fas fa-trophy me-2"></i>Top 5 Leaderboard
                 </h6>
                 <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-sm btn-outline-success">View All</a>
@@ -220,9 +227,9 @@
 <!-- Charts and High-Risk Students -->
 <div class="row">
     <div class="col-lg-7">
-        <div class="card shadow mb-4">
+        <div class="card app-surface-card border-0 mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Dropout Risk Trend</h6>
+                <h6 class="m-0 font-weight-bold app-title-teal">Dropout Risk Trend</h6>
             </div>
             <div class="card-body">
                 <canvas 
@@ -234,9 +241,9 @@
         </div>
     </div>
     <div class="col-lg-5">
-        <div class="card shadow mb-4">
+        <div class="card app-surface-card border-0 mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-danger">Top 5 High-Risk Students</h6>
+                <h6 class="m-0 font-weight-bold app-title-danger">Top 5 High-Risk Students</h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -275,34 +282,34 @@
 <!-- Quick Links Section -->
 <div class="row">
     <div class="col-md-12">
-        <div class="card shadow">
+        <div class="card app-surface-card app-panel border-0">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-info">
+                <h6 class="m-0 font-weight-bold app-title-teal">
                     <i class="fas fa-link me-2"></i>Quick Links
                 </h6>
             </div>
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-md-3 mb-3">
-                        <a href="{{ url_for('student_bp.list_students') }}" class="btn btn-outline-primary btn-block">
+                        <a href="{{ url_for('student_bp.list_students') }}" class="btn auth-btn-primary btn-block">
                             <i class="fas fa-users fa-2x mb-2 d-block"></i>
                             <span class="d-block">View All Students</span>
                         </a>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn btn-outline-warning btn-block">
+                        <a href="{{ url_for('alert_bp.alerts_dashboard') }}" class="btn app-btn-warn btn-block">
                             <i class="fas fa-bell fa-2x mb-2 d-block"></i>
                             <span class="d-block">Alert Dashboard</span>
                         </a>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn btn-outline-info btn-block">
+                        <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn app-btn-info btn-block">
                             <i class="fas fa-hands-helping fa-2x mb-2 d-block"></i>
                             <span class="d-block">Interventions</span>
                         </a>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <a href="{{ url_for('main_bp.chatbot_page') }}" class="btn btn-outline-success btn-block">
+                        <a href="{{ url_for('main_bp.chatbot_page') }}" class="btn app-btn-success btn-block">
                             <i class="fas fa-robot fa-2x mb-2 d-block"></i>
                             <span class="d-block">AI Chatbot</span>
                         </a>
@@ -311,6 +318,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}
 

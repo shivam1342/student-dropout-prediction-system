@@ -3,23 +3,23 @@
 {% block title %}Complete Intervention - EduCare{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-4 app-dashboard">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h2 class="app-title-teal mb-0">
                     <i class="fas fa-check-circle me-2"></i>Complete Intervention
                 </h2>
                 <a href="{{ url_for('intervention_bp.intervention_detail', intervention_id=intervention.id) }}" 
-                   class="btn btn-outline-secondary">
+                   class="btn app-btn-secondary-soft">
                     <i class="fas fa-arrow-left me-1"></i> Back
                 </a>
             </div>
 
             <!-- Intervention Summary -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
+            <div class="card app-surface-card mb-4">
+                <div class="card-header">
                     <h5 class="mb-0">Intervention Summary</h5>
                 </div>
                 <div class="card-body">
@@ -43,7 +43,7 @@
             </div>
 
             <!-- Completion Form -->
-            <div class="card">
+            <div class="card app-surface-card">
                 <div class="card-header">
                     <h5 class="mb-0">Completion Details</h5>
                 </div>
@@ -52,7 +52,7 @@
                         <!-- Outcome -->
                         <div class="mb-3">
                             <label for="outcome" class="form-label">Outcome <span class="text-danger">*</span></label>
-                            <select class="form-select" id="outcome" name="outcome" required>
+                            <select class="form-select auth-input" id="outcome" name="outcome" required>
                                 <option value="">Select outcome...</option>
                                 <option value="Successful">Successful - Goals Achieved</option>
                                 <option value="Partially Successful">Partially Successful - Some Progress Made</option>
@@ -83,7 +83,7 @@
                         <!-- Notes -->
                         <div class="mb-3">
                             <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="5" 
+                            <textarea class="form-control auth-input" id="notes" name="notes" rows="5" 
                                       placeholder="Detailed notes about the intervention outcome, student response, observations, etc."></textarea>
                             <small class="form-text text-muted">Detailed notes about the intervention session</small>
                         </div>
@@ -103,7 +103,7 @@
                         <!-- Follow-up Date (conditional) -->
                         <div class="mb-3" id="follow_up_date_group" style="display: none;">
                             <label for="follow_up_date" class="form-label">Follow-up Date</label>
-                            <input type="date" class="form-control" id="follow_up_date" name="follow_up_date">
+                            <input type="date" class="form-control auth-input" id="follow_up_date" name="follow_up_date">
                             <small class="form-text text-muted">When should the follow-up occur?</small>
                         </div>
 
@@ -111,10 +111,10 @@
                         <div class="border-top pt-3 mt-4">
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                 <a href="{{ url_for('intervention_bp.intervention_detail', intervention_id=intervention.id) }}" 
-                                   class="btn btn-secondary">
+                                   class="btn app-btn-secondary-soft">
                                     <i class="fas fa-times me-1"></i> Cancel
                                 </a>
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" class="btn app-btn-success">
                                     <i class="fas fa-check me-1"></i> Complete Intervention
                                 </button>
                             </div>
@@ -124,8 +124,8 @@
             </div>
 
             <!-- Completion Tips -->
-            <div class="card mt-4 border-info">
-                <div class="card-header bg-info text-white">
+            <div class="card app-surface-card mt-4">
+                <div class="card-header">
                     <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Completion Tips</h6>
                 </div>
                 <div class="card-body">
@@ -225,11 +225,11 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .form-range::-webkit-slider-thumb {
-    background: #0d6efd;
+    background: #0A6B5A;
 }
 
 .form-range::-moz-range-thumb {
-    background: #0d6efd;
+    background: #0A6B5A;
 }
 </style>
 {% endblock %}

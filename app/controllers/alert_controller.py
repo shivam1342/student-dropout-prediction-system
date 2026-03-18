@@ -70,8 +70,10 @@ class AlertController:
         lms_activity = LMSActivity.query.filter_by(student_id=student_id).order_by(LMSActivity.activity_date.desc()).first()
         if lms_activity:
             engagement_alert = AlertController._check_lms_engagement(student, lms_activity)
-            # LMS engagement also creates Academic type alert, check with different approach
-            if engagement_alert and not AlertController._recent_alert_exists(student_id, 'Academic', 'Low LMS Engagement', days=7):
+            # LMS engagement produces an Academic alert; avoid redundant parallel Academic alerts.
+            has_active_academic = AlertController._alert_exists(student_id, 'Academic', 'Active')
+            has_recent_engagement = AlertController._recent_alert_exists(student_id, 'Academic', 'Low LMS Engagement', days=7)
+            if engagement_alert and not has_active_academic and not has_recent_engagement:
                 alerts_generated.append(engagement_alert)
         
         # Check dropout risk prediction

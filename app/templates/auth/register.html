@@ -3,62 +3,62 @@
 {% block title %}Register - EduCare{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h3><i class="fas fa-user-plus me-2"></i>Create Account</h3>
+<div class="container auth-shell">
+    <div class="row justify-content-center mt-4 mt-md-5">
+        <div class="col-md-9 col-lg-7">
+            <div class="card auth-card border-0">
+                <div class="card-header auth-card-header text-center py-4 border-0">
+                    <h3 class="mb-1"><i class="fas fa-user-plus me-2"></i>Create Account</h3>
                     <p class="mb-0 small">Join the EduCare System</p>
                 </div>
                 <div class="card-body p-4">
                     <form method="POST" action="{{ url_for('auth_bp.register') }}" id="registerForm">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="username" class="form-label">
+                                <label for="username" class="form-label auth-label">
                                     <i class="fas fa-user me-1"></i>Username *
                                 </label>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                                <small class="text-muted">Unique identifier for login</small>
+                                <input type="text" class="form-control auth-input" id="username" name="username" required>
+                                <small class="auth-hint">Unique identifier for login</small>
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">
+                                <label for="email" class="form-label auth-label">
                                     <i class="fas fa-envelope me-1"></i>Email *
                                 </label>
-                                <input type="email" class="form-control" id="email" name="email" required>
+                                <input type="email" class="form-control auth-input" id="email" name="email" required>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="full_name" class="form-label">
+                            <label for="full_name" class="form-label auth-label">
                                 <i class="fas fa-id-card me-1"></i>Full Name *
                             </label>
-                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+                            <input type="text" class="form-control auth-input" id="full_name" name="full_name" required>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label">
+                                <label for="password" class="form-label auth-label">
                                     <i class="fas fa-lock me-1"></i>Password *
                                 </label>
-                                <input type="password" class="form-control" id="password" name="password" required minlength="6">
-                                <small class="text-muted">Minimum 6 characters</small>
+                                <input type="password" class="form-control auth-input" id="password" name="password" required minlength="6">
+                                <small class="auth-hint">Minimum 6 characters</small>
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="confirm_password" class="form-label">
+                                <label for="confirm_password" class="form-label auth-label">
                                     <i class="fas fa-lock me-1"></i>Confirm Password *
                                 </label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="6">
+                                <input type="password" class="form-control auth-input" id="confirm_password" name="confirm_password" required minlength="6">
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="role" class="form-label">
+                            <label for="role" class="form-label auth-label">
                                 <i class="fas fa-user-tag me-1"></i>Role *
                             </label>
-                            <select class="form-select" id="role" name="role" required>
+                            <select class="form-select auth-input" id="role" name="role" required>
                                 <option value="student" selected>Student</option>
                                 <option value="teacher">Teacher</option>
                             </select>
@@ -68,23 +68,23 @@
                         <div id="teacherFields" style="display: none;">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="employee_id" class="form-label">
+                                    <label for="employee_id" class="form-label auth-label">
                                         <i class="fas fa-id-badge me-1"></i>Employee ID
                                     </label>
-                                    <input type="text" class="form-control" id="employee_id" name="employee_id">
+                                    <input type="text" class="form-control auth-input" id="employee_id" name="employee_id">
                                 </div>
                                 
                                 <div class="col-md-6 mb-3">
-                                    <label for="department" class="form-label">
+                                    <label for="department" class="form-label auth-label">
                                         <i class="fas fa-building me-1"></i>Department
                                     </label>
-                                    <input type="text" class="form-control" id="department" name="department">
+                                    <input type="text" class="form-control auth-input" id="department" name="department">
                                 </div>
                             </div>
                         </div>
                         
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn auth-btn-primary btn-lg">
                                 <i class="fas fa-user-plus me-2"></i>Create Account
                             </button>
                         </div>
@@ -94,7 +94,7 @@
                     
                     <div class="text-center">
                         <p class="text-muted mb-2">Already have an account?</p>
-                        <a href="{{ url_for('auth_bp.login') }}" class="btn btn-outline-primary">
+                        <a href="{{ url_for('auth_bp.login') }}" class="btn auth-btn-outline">
                             <i class="fas fa-sign-in-alt me-2"></i>Login
                         </a>
                     </div>

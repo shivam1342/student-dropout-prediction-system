@@ -2,30 +2,80 @@
 {% block title %}About This Project{% endblock %}
 
 {% block content %}
-<div class="card shadow">
-    <div class="card-body">
-        <h1 class="h3 mb-4 text-gray-800">About the AI-Based Dropout Prediction System</h1>
-        <p>This project is a comprehensive Flask application designed to identify students at risk of dropping out and provide actionable insights for counselling and intervention.</p>
-        
-        <h5 class="mt-4">Core Features</h5>
-        <ul>
-            <li><strong>AI-Powered Predictions:</strong> Utilizes a machine learning model (RandomForest) to predict dropout risk based on various student metrics.</li>
-            <li><strong>Explainable AI (XAI):</strong> Integrates SHAP (SHapley Additive exPlanations) to identify the top factors contributing to each student's risk score, making the AI's decisions transparent.</li>
-            <li><strong>Modular Architecture:</strong> Built with Flask Blueprints for a clean and scalable separation of concerns (routes, controllers, models).</li>
-            <li><strong>Interactive Dashboard:</strong> A central dashboard provides a high-level overview of student risk trends, summary statistics, and quick access to high-risk profiles.</li>
-            <li><strong>Counselling Portal:</strong> Automatically generates rule-based counselling recommendations based on a student's specific risk factors.</li>
-            <li><strong>Student Management:</strong> Full CRUD (Create, Read, Update, Delete) functionality for managing student records.</li>
-            <li><strong>Virtual Assistant:</strong> A simple, rule-based chatbot to provide initial student support and guidance.</li>
-        </ul>
+<div class="app-dashboard app-remodel-page">
+    <section class="app-hero-band p-4 p-md-5 mb-4 app-slide-up">
+        <p class="app-hero-kicker mb-2">Project Vision</p>
+        <h1 class="app-hero-title">AI-Based Dropout Prediction and Counselling Platform</h1>
+        <p class="mb-0 col-lg-9">
+            This system blends risk prediction, explainable AI, and intervention workflows to help educators detect risk early and respond with targeted support.
+        </p>
+    </section>
 
-        <h5 class="mt-4">Technology Stack</h5>
-        <ul>
-            <li><strong>Backend:</strong> Flask, SQLAlchemy</li>
-            <li><strong>Frontend:</strong> Jinja2, Bootstrap 5, Chart.js</li>
-            <li><strong>Machine Learning:</strong> Scikit-learn, Pandas, NumPy</li>
-            <li><strong>Explainability:</strong> SHAP</li>
-            <li><strong>Database:</strong> SQLite</li>
-        </ul>
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="app-panel h-100 app-slide-up">
+                <div class="app-panel-header">Core Features</div>
+                <div class="app-panel-body">
+                    <div class="app-feature-grid">
+                        <div class="app-feature-item">
+                            <h6><i class="fas fa-brain me-2"></i>AI Predictions</h6>
+                            <p class="mb-0">RandomForest-based dropout risk scoring from multi-factor student signals.</p>
+                        </div>
+                        <div class="app-feature-item">
+                            <h6><i class="fas fa-magnifying-glass-chart me-2"></i>Explainable AI</h6>
+                            <p class="mb-0">SHAP feature attribution for transparent risk reasoning per student.</p>
+                        </div>
+                        <div class="app-feature-item">
+                            <h6><i class="fas fa-sitemap me-2"></i>Modular Architecture</h6>
+                            <p class="mb-0">Blueprint-driven Flask layers for routes, controllers, services, and repositories.</p>
+                        </div>
+                        <div class="app-feature-item">
+                            <h6><i class="fas fa-chart-line me-2"></i>Operational Dashboard</h6>
+                            <p class="mb-0">Role-oriented dashboards for monitoring trends, alerts, and interventions.</p>
+                        </div>
+                        <div class="app-feature-item">
+                            <h6><i class="fas fa-heart-pulse me-2"></i>Counselling Recommendations</h6>
+                            <p class="mb-0">Rule-guided intervention recommendations based on active risk factors.</p>
+                        </div>
+                        <div class="app-feature-item">
+                            <h6><i class="fas fa-comments me-2"></i>Student Assistant</h6>
+                            <p class="mb-0">Built-in chatbot support for students seeking immediate guidance.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="app-panel mb-4 app-slide-up">
+                <div class="app-panel-header">System Goals</div>
+                <div class="app-panel-body">
+                    <p class="mb-2"><span class="app-pill app-pill-teal"><i class="fas fa-bolt"></i>Early Detection</span></p>
+                    <p class="mb-2"><span class="app-pill app-pill-amber"><i class="fas fa-shield-heart"></i>Actionable Support</span></p>
+                    <p class="mb-0"><span class="app-pill app-pill-teal"><i class="fas fa-eye"></i>Transparent Decisions</span></p>
+                </div>
+            </div>
+            <div class="app-panel app-slide-up">
+                <div class="app-panel-header">Data Workflow</div>
+                <div class="app-panel-body">
+                    <p class="mb-2"><strong>1.</strong> Ingest student and activity data</p>
+                    <p class="mb-2"><strong>2.</strong> Score risk using trained models</p>
+                    <p class="mb-2"><strong>3.</strong> Explain top contributors</p>
+                    <p class="mb-0"><strong>4.</strong> Trigger alerts and interventions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-panel app-slide-up">
+        <div class="app-panel-header">Technology Stack</div>
+        <div class="app-panel-body">
+            <div class="row g-3">
+                <div class="col-md-4"><div class="app-stat-tile"><p class="app-stat-label mb-1">Backend</p><p class="mb-0">Flask, SQLAlchemy</p></div></div>
+                <div class="col-md-4"><div class="app-stat-tile"><p class="app-stat-label mb-1">Frontend</p><p class="mb-0">Jinja2, Bootstrap 5, Chart.js</p></div></div>
+                <div class="col-md-4"><div class="app-stat-tile"><p class="app-stat-label mb-1">ML + XAI</p><p class="mb-0">Scikit-learn, SHAP, Pandas, NumPy</p></div></div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

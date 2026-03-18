@@ -3,17 +3,16 @@
 {% block title %}Follow-up Reminders - EduCare{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 app-dashboard app-remodel-page">
     <!-- Header -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <h2><i class="fas fa-bell me-2"></i>Follow-up Reminders</h2>
-            <p class="text-muted">Interventions requiring follow-up action</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn btn-outline-primary">
-                <i class="fas fa-arrow-left me-1"></i> Back to List
-            </a>
+        <div class="col-12">
+            <div class="app-hero-band p-4 p-md-5 app-slide-up">
+                <p class="app-hero-kicker mb-2">Intervention Continuity</p>
+                <h2 class="app-hero-title mb-2"><i class="fas fa-bell me-2"></i>Follow-up Reminders</h2>
+                <p class="mb-3">Prioritized reminders for interventions that need timely follow-up action.</p>
+                <a href="{{ url_for('intervention_bp.interventions_list') }}" class="btn app-btn-light"><i class="fas fa-arrow-left me-1"></i> Back to List</a>
+            </div>
         </div>
     </div>
 
@@ -22,8 +21,8 @@
     <div class="row">
         {% for reminder in reminders %}
         <div class="col-md-6 mb-4">
-            <div class="card border-warning">
-                <div class="card-header bg-warning">
+            <div class="card app-surface-card border-0">
+                <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Follow-up Due: {{ reminder.follow_up_date.strftime('%B %d, %Y') }}
@@ -113,11 +112,11 @@
                     <!-- Actions -->
                     <div class="d-grid gap-2">
                         <a href="{{ url_for('intervention_bp.intervention_detail', intervention_id=reminder.id) }}" 
-                           class="btn btn-primary">
+                           class="btn auth-btn-primary">
                             <i class="fas fa-eye me-1"></i> View Details
                         </a>
                         <a href="{{ url_for('intervention_bp.create_intervention') }}?student_id={{ reminder.student_id }}&follow_up_from={{ reminder.id }}" 
-                           class="btn btn-success">
+                           class="btn app-btn-success">
                             <i class="fas fa-plus me-1"></i> Schedule Follow-up
                         </a>
                     </div>
@@ -127,9 +126,9 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="card">
+    <div class="card app-surface-card border-0">
         <div class="card-body">
-            <div class="alert alert-success mb-0">
+            <div class="app-empty-state mb-0">
                 <h5><i class="fas fa-check-circle me-2"></i>No Follow-ups Due</h5>
                 <p class="mb-0">There are no interventions requiring follow-up in the next 7 days.</p>
             </div>

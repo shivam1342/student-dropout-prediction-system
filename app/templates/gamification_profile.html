@@ -3,25 +3,17 @@
 {% block title %}{{ student.name }} - Gamification Profile{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 app-dashboard app-remodel-page">
     <!-- Header -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <h2>
-                <i class="fas fa-gamepad me-2 text-primary"></i>
-                Gamification Profile: {{ student.name }}
-            </h2>
-            <p class="text-muted">Achievements, badges, and progress tracking</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ url_for('student_bp.student_profile', student_id=student.id) }}" 
-               class="btn btn-outline-primary">
-                <i class="fas fa-user me-1"></i> Student Profile
-            </a>
-            <a href="{{ url_for('gamification_bp.leaderboard') }}" 
-               class="btn btn-outline-secondary">
-                <i class="fas fa-trophy me-1"></i> Leaderboard
-            </a>
+        <div class="col-12">
+            <div class="app-hero-band p-4 p-md-5 app-slide-up">
+                <p class="app-hero-kicker mb-2">Performance Journey</p>
+                <h2 class="app-hero-title mb-2"><i class="fas fa-gamepad me-2"></i>Gamification Profile: {{ student.name }}</h2>
+                <p class="mb-3">Track levels, points, streaks, and achievement momentum in one view.</p>
+                <a href="{{ url_for('student_bp.student_profile', student_id=student.id) }}" class="btn app-btn-light me-2 mb-2 mb-md-0"><i class="fas fa-user me-1"></i> Student Profile</a>
+                <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn app-btn-light"><i class="fas fa-trophy me-1"></i> Leaderboard</a>
+            </div>
         </div>
     </div>
 
@@ -29,8 +21,8 @@
         <!-- Left Column: Stats and Badges -->
         <div class="col-md-8">
             <!-- Points Overview Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-gradient-primary text-white">
+            <div class="card app-surface-card border-0 mb-4">
+                <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-star me-2"></i>Points Overview
                     </h5>
@@ -58,7 +50,7 @@
             </div>
 
             <!-- Level Progress -->
-            <div class="card mb-4">
+            <div class="card app-surface-card border-0 mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-layer-group me-2"></i>Level {{ profile.level }} Progress
@@ -70,7 +62,7 @@
                         <span><strong>Level {{ level_progress.next_level }}</strong></span>
                     </div>
                     <div class="progress" style="height: 30px;">
-                        <div class="progress-bar bg-gradient-success progress-bar-striped progress-bar-animated" 
+                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
                              role="progressbar" 
                              style="width: {{ level_progress.percentage }}%;" 
                              aria-valuenow="{{ level_progress.percentage }}" 
@@ -89,7 +81,7 @@
             </div>
 
             <!-- Points Breakdown -->
-            <div class="card mb-4">
+            <div class="card app-surface-card border-0 mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-chart-pie me-2"></i>Points Breakdown by Category
@@ -119,7 +111,7 @@
             </div>
 
             <!-- Achievement Timeline -->
-            <div class="card">
+            <div class="card app-surface-card border-0">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-history me-2"></i>Achievement Timeline
@@ -153,7 +145,7 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="alert alert-info">
+                    <div class="app-empty-state">
                         <i class="fas fa-info-circle me-2"></i>No achievements yet. Keep engaging to earn badges and level up!
                     </div>
                     {% endif %}
@@ -164,7 +156,7 @@
         <!-- Right Column: Badges and Ranking -->
         <div class="col-md-4">
             <!-- Current Streak -->
-            <div class="card mb-4 border-danger">
+            <div class="card app-surface-card border-0 mb-4">
                 <div class="card-body text-center">
                     <i class="fas fa-fire fa-3x text-danger mb-3"></i>
                     <h2 class="mb-0">{{ profile.current_streak }}</h2>
@@ -176,8 +168,8 @@
             </div>
 
             <!-- Badges Earned -->
-            <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">
+            <div class="card app-surface-card border-0 mb-4">
+                <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-medal me-2"></i>Badges Earned
                         <span class="badge bg-dark float-end">{{ (profile.badges_earned|length) if profile.badges_earned else 0 }}</span>
@@ -202,7 +194,7 @@
                     </div>
                     {% endif %}
                     <div class="text-center mt-3">
-                        <a href="{{ url_for('gamification_bp.badge_gallery') }}" class="btn btn-sm btn-outline-warning">
+                        <a href="{{ url_for('gamification_bp.badge_gallery') }}" class="btn btn-sm app-btn-secondary-soft">
                             <i class="fas fa-eye me-1"></i> View All Badges
                         </a>
                     </div>
@@ -210,8 +202,8 @@
             </div>
 
             <!-- Leaderboard Ranking -->
-            <div class="card">
-                <div class="card-header bg-primary text-white">
+            <div class="card app-surface-card border-0">
+                <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-ranking-star me-2"></i>Leaderboard Ranking
                     </h5>
@@ -227,7 +219,7 @@
                         <p class="text-muted">Current Rank</p>
                     </div>
                     <div class="text-center">
-                        <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-primary">
+                        <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn auth-btn-primary">
                             <i class="fas fa-trophy me-1"></i> View Full Leaderboard
                         </a>
                     </div>
@@ -238,14 +230,6 @@
 </div>
 
 <style>
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.bg-gradient-success {
-    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-}
-
 .timeline {
     position: relative;
     padding-left: 30px;
@@ -277,7 +261,8 @@
 }
 
 .timeline-content {
-    background: #f8f9fa;
+    background: #f7f2e9;
+    border: 1px solid #e1d7c8;
     padding: 15px;
     border-radius: 8px;
 }
@@ -285,7 +270,8 @@
 .badge-display {
     padding: 10px;
     border-radius: 8px;
-    background: #f8f9fa;
+    background: #f7f2e9;
+    border: 1px solid #e1d6c7;
     transition: transform 0.3s ease;
 }
 

@@ -3,16 +3,16 @@
 {% block title %}Alert Dashboard - EduCare{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4 app-dashboard">
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2><i class="fas fa-bell"></i> Alert Dashboard</h2>
+            <h2 class="app-title-teal"><i class="fas fa-bell"></i> Alert Dashboard</h2>
             <p class="text-muted">Monitor and manage student alerts in real-time</p>
         </div>
         <div class="col-md-4 text-end">
             <form method="POST" action="{{ url_for('alert_bp.generate_alerts') }}" class="d-inline">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn auth-btn-primary">
                     <i class="fas fa-sync"></i> Refresh Alerts
                 </button>
             </form>
@@ -22,7 +22,7 @@
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card text-white bg-danger">
+            <div class="card app-kpi-card app-kpi-danger border-0 text-dark">
                 <div class="card-body">
                     <h5 class="card-title"><i class="fas fa-exclamation-circle"></i> Critical</h5>
                     <h2 class="mb-0">{{ stats.by_severity.critical }}</h2>
@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-warning">
+            <div class="card app-kpi-card app-kpi-warning border-0 text-dark">
                 <div class="card-body">
                     <h5 class="card-title"><i class="fas fa-exclamation-triangle"></i> High</h5>
                     <h2 class="mb-0">{{ stats.by_severity.high }}</h2>
@@ -40,7 +40,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-info">
+            <div class="card app-kpi-card app-kpi-info border-0 text-dark">
                 <div class="card-body">
                     <h5 class="card-title"><i class="fas fa-info-circle"></i> Medium</h5>
                     <h2 class="mb-0">{{ stats.by_severity.medium }}</h2>
@@ -49,7 +49,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-success">
+            <div class="card app-kpi-card app-kpi-success border-0 text-dark">
                 <div class="card-body">
                     <h5 class="card-title"><i class="fas fa-check-circle"></i> Low</h5>
                     <h2 class="mb-0">{{ stats.by_severity.low }}</h2>
@@ -60,7 +60,7 @@
     </div>
 
     <!-- Filters -->
-    <div class="card mb-4">
+    <div class="card app-surface-card border-0 mb-4">
         <div class="card-body">
             <form method="GET" action="{{ url_for('alert_bp.alerts_dashboard') }}">
                 <div class="row g-3">
@@ -108,7 +108,7 @@
     </div>
 
     <!-- Alerts Table -->
-    <div class="card">
+    <div class="card app-surface-card border-0">
         <div class="card-header">
             <h5 class="mb-0">
                 <i class="fas fa-list"></i> Alerts ({{ alerts|length }})
@@ -132,7 +132,7 @@
                     </thead>
                     <tbody>
                         {% for alert in alerts %}
-                        <tr class="alert-row-{{ alert.severity.lower() }}">
+                        <tr class="app-alert-row-{{ alert.severity.lower() }}">
                             <td><strong>#{{ alert.id }}</strong></td>
                             <td>
                                 <a href="{{ url_for('student_bp.student_profile', student_id=alert.student_id) }}">
@@ -190,7 +190,7 @@
                 </table>
             </div>
             {% else %}
-            <div class="text-center py-5">
+            <div class="app-empty-state m-3">
                 <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
                 <p class="text-muted">No alerts found matching your filters.</p>
             </div>
@@ -235,25 +235,6 @@
         </div>
     </div>
 </div>
-
-<style>
-.alert-row-critical {
-    background-color: #fff5f5;
-    border-left: 4px solid #dc3545;
-}
-.alert-row-high {
-    background-color: #fff9f0;
-    border-left: 4px solid #ffc107;
-}
-.alert-row-medium {
-    background-color: #f0f9ff;
-    border-left: 4px solid #0dcaf0;
-}
-.alert-row-low {
-    background-color: #f0fff4;
-    border-left: 4px solid #198754;
-}
-</style>
 
 <script>
 function acknowledgeAlert(alertId) {

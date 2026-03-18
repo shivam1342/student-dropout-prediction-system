@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+
+{% block title %}Design System Foundations{% endblock %}
+
+{% block content %}
+<div class="ds-page mb-5">
+    <div class="ds-header mb-4">
+        <p class="ds-kicker mb-2">FOUNDATIONS</p>
+        <h1 class="ds-title mb-2">Soft UI Design System</h1>
+        <p class="ds-subtitle mb-0">
+            Project-specific foundation tokens and visual rules for the final UI/UX refresh.
+        </p>
+    </div>
+
+    <section class="ds-section ds-raised mb-4">
+        <h2 class="ds-section-title">Layer Treatments</h2>
+        <p class="ds-section-subtitle">Base, raised, inset, and pressed treatments using the same cream surface.</p>
+        <div class="ds-layer-grid">
+            <div class="ds-layer-item">
+                <div class="ds-surface-square ds-base"></div>
+                <p class="ds-label mb-0">Base Layer (Flat)</p>
+            </div>
+            <div class="ds-layer-item">
+                <div class="ds-surface-square ds-raised-surface"></div>
+                <p class="ds-label mb-0">Raised Layer</p>
+            </div>
+            <div class="ds-layer-item">
+                <div class="ds-surface-square ds-inset-surface"></div>
+                <p class="ds-label mb-0">Inset Layer</p>
+            </div>
+            <div class="ds-layer-item">
+                <div class="ds-surface-square ds-pressed-surface"></div>
+                <p class="ds-label mb-0">Pressed Layer</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="ds-section ds-raised mb-4">
+        <h2 class="ds-section-title">Elevation Levels</h2>
+        <p class="ds-section-subtitle">Tokenized depth levels for consistency across pages.</p>
+        <div class="ds-elevation-grid">
+            <div class="ds-elevation-item ds-e1">Level 1 (Flat)</div>
+            <div class="ds-elevation-item ds-e2">Level 2 (Hover/Raised)</div>
+            <div class="ds-elevation-item ds-e3">Level 3 (Modal)</div>
+            <div class="ds-elevation-item ds-e4">Level 4 (Popover)</div>
+            <div class="ds-elevation-item ds-e5">Level 5 (Highest)</div>
+        </div>
+    </section>
+
+    <section class="ds-grid-2 mb-4">
+        <div class="ds-section ds-raised">
+            <h2 class="ds-section-title">Border Thickness</h2>
+            <div class="ds-border-token ds-thin">1PX Thin</div>
+            <div class="ds-border-token ds-regular">2PX Regular</div>
+            <div class="ds-border-token ds-thick">4PX Thick</div>
+        </div>
+
+        <div class="ds-section ds-raised">
+            <h2 class="ds-section-title">Spacing Scale</h2>
+            <p class="ds-section-subtitle mb-2">8px base grid labels.</p>
+            <p class="ds-spacing-label">SPACING: 8PX, 16PX, 24PX, 32PX, 40PX</p>
+            <div class="ds-spacing-bars">
+                <div style="width: 8px;"></div>
+                <div style="width: 16px;"></div>
+                <div style="width: 24px;"></div>
+                <div style="width: 32px;"></div>
+                <div style="width: 40px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ds-section ds-raised mb-4">
+        <h2 class="ds-section-title">Radius Scale</h2>
+        <div class="ds-radius-grid">
+            <div class="ds-radius-item">
+                <div class="ds-radius-box r4"></div>
+                <p class="ds-label mb-0">4PX</p>
+            </div>
+            <div class="ds-radius-item">
+                <div class="ds-radius-box r8"></div>
+                <p class="ds-label mb-0">8PX</p>
+            </div>
+            <div class="ds-radius-item">
+                <div class="ds-radius-box r12"></div>
+                <p class="ds-label mb-0">12PX</p>
+            </div>
+            <div class="ds-radius-item">
+                <div class="ds-radius-box r16"></div>
+                <p class="ds-label mb-0">16PX</p>
+            </div>
+            <div class="ds-radius-item">
+                <div class="ds-radius-box r24"></div>
+                <p class="ds-label mb-0">24PX</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="ds-section ds-raised">
+        <h2 class="ds-section-title">Iconography</h2>
+        <p class="ds-spacing-label mb-3">STROKE WEIGHT: 2PX</p>
+        <div class="ds-icons-grid">
+            <div class="ds-icon-group">
+                <p class="ds-label">16PX</p>
+                <div class="ds-icon-row">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+            </div>
+
+            <div class="ds-icon-group">
+                <p class="ds-label">20PX</p>
+                <div class="ds-icon-row">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+            </div>
+
+            <div class="ds-icon-group">
+                <p class="ds-label">24PX</p>
+                <div class="ds-icon-row">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

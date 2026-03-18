@@ -3,17 +3,18 @@
 {% block title %}Badge Gallery - EduCare{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 app-dashboard app-remodel-page">
     <!-- Header -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <h2><i class="fas fa-medal me-2 text-warning"></i>Badge Gallery</h2>
-            <p class="text-muted">All available badges and achievements</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-outline-primary">
-                <i class="fas fa-trophy me-1"></i> Back to Leaderboard
-            </a>
+        <div class="col-12">
+            <div class="app-hero-band p-4 p-md-5 app-slide-up">
+                <p class="app-hero-kicker mb-2">Achievement System</p>
+                <h2 class="app-hero-title mb-2"><i class="fas fa-medal me-2"></i>Badge Gallery</h2>
+                <p class="mb-3">Explore every unlockable badge and the milestones students can earn through performance and participation.</p>
+                <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn app-btn-light">
+                    <i class="fas fa-trophy me-1"></i> Back to Leaderboard
+                </a>
+            </div>
         </div>
     </div>
 
@@ -21,7 +22,7 @@
     <div class="row">
         {% for badge_name, badge_info in badges.items() %}
         <div class="col-md-3 col-sm-6 mb-4">
-            <div class="card h-100 badge-card">
+            <div class="card h-100 app-surface-card border-0 badge-card app-slide-up">
                 <div class="card-body text-center">
                     <!-- Badge Icon -->
                     <div class="badge-icon mb-3">
@@ -44,7 +45,7 @@
                     
                     <!-- Points -->
                     <div class="mb-2">
-                        <span class="badge bg-primary">
+                        <span class="badge bg-secondary">
                             <i class="fas fa-star me-1"></i>{{ badge_info.points }} points
                         </span>
                     </div>
@@ -70,8 +71,8 @@
     </div>
 
     <!-- Badge Statistics -->
-    <div class="card mt-4">
-        <div class="card-header bg-primary text-white">
+    <div class="card app-surface-card border-0 mt-4 app-slide-up">
+        <div class="card-header">
             <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Badge Statistics</h5>
         </div>
         <div class="card-body">
@@ -103,8 +104,8 @@
     </div>
 
     <!-- Badge Categories Info -->
-    <div class="card mt-4">
-        <div class="card-header bg-info text-white">
+    <div class="card app-surface-card border-0 mt-4 app-slide-up">
+        <div class="card-header">
             <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>How to Earn Badges</h5>
         </div>
         <div class="card-body">
@@ -133,18 +134,16 @@
 <style>
 .badge-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 2px solid #e0e0e0;
 }
 
 .badge-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    border-color: #667eea;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
 }
 
 .badge-icon {
     padding: 20px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, #f8f2e8 0%, #efe4d4 100%);
     border-radius: 50%;
     width: 120px;
     height: 120px;

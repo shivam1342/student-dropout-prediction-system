@@ -3,18 +3,18 @@
 {% block title %}Interventions - EduCare{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 app-dashboard">
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2><i class="fas fa-hands-helping me-2"></i>Intervention Management</h2>
+            <h2 class="app-title-teal"><i class="fas fa-hands-helping me-2"></i>Intervention Management</h2>
             <p class="text-muted">Track and manage student interventions</p>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ url_for('intervention_bp.create_intervention') }}" class="btn btn-primary">
+            <a href="{{ url_for('intervention_bp.create_intervention') }}" class="btn auth-btn-primary">
                 <i class="fas fa-plus me-1"></i> Create Intervention
             </a>
-            <a href="{{ url_for('intervention_bp.calendar_view') }}" class="btn btn-outline-secondary">
+            <a href="{{ url_for('intervention_bp.calendar_view') }}" class="btn app-btn-secondary-soft">
                 <i class="fas fa-calendar me-1"></i> Calendar View
             </a>
         </div>
@@ -23,7 +23,7 @@
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card border-primary">
+            <div class="card app-kpi-card app-kpi-primary border-0">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">
                         <i class="fas fa-clock text-primary"></i> Scheduled
@@ -33,7 +33,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-warning">
+            <div class="card app-kpi-card app-kpi-warning border-0">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">
                         <i class="fas fa-spinner text-warning"></i> In Progress
@@ -43,7 +43,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-success">
+            <div class="card app-kpi-card app-kpi-success border-0">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">
                         <i class="fas fa-check-circle text-success"></i> Completed
@@ -53,7 +53,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-info">
+            <div class="card app-kpi-card app-kpi-info border-0">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">
                         <i class="fas fa-chart-line text-info"></i> Avg Effectiveness
@@ -65,7 +65,7 @@
     </div>
 
     <!-- Filters -->
-    <div class="card mb-4">
+    <div class="card app-surface-card border-0 mb-4">
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
@@ -117,7 +117,7 @@
     </div>
 
     <!-- Interventions Table -->
-    <div class="card">
+    <div class="card app-surface-card border-0">
         <div class="card-header">
             <h5 class="mb-0">
                 <i class="fas fa-list me-2"></i>Interventions
@@ -142,7 +142,7 @@
                     </thead>
                     <tbody>
                         {% for intervention in interventions %}
-                        <tr class="intervention-row-{{ intervention.priority.lower() if intervention.priority else 'medium' }}">
+                        <tr class="app-intervention-row-{{ intervention.priority.lower() if intervention.priority else 'medium' }}">
                             <td>
                                 <a href="{{ url_for('student_bp.student_profile', student_id=intervention.student_id) }}">
                                     {{ intervention.student.name }}
@@ -202,7 +202,7 @@
                 </table>
             </div>
             {% else %}
-            <div class="alert alert-info">
+            <div class="app-empty-state">
                 <i class="fas fa-info-circle me-2"></i>No interventions found matching the selected filters.
             </div>
             {% endif %}
@@ -210,7 +210,7 @@
     </div>
 
     <!-- Upcoming Interventions Widget -->
-    <div class="card mt-4">
+    <div class="card app-surface-card border-0 mt-4">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">
                 <i class="fas fa-calendar-check me-2"></i>Upcoming Interventions (Next 7 Days)
@@ -227,7 +227,7 @@
 
     <!-- Follow-up Reminders Widget -->
     {% if stats.follow_up_due > 0 %}
-    <div class="card mt-4 border-warning">
+    <div class="card app-surface-card border-0 mt-4">
         <div class="card-header bg-warning">
             <h5 class="mb-0">
                 <i class="fas fa-bell me-2"></i>Follow-up Reminders
@@ -242,21 +242,6 @@
     </div>
     {% endif %}
 </div>
-
-<style>
-.intervention-row-critical {
-    background-color: #ffe6e6;
-}
-.intervention-row-high {
-    background-color: #fff3cd;
-}
-.intervention-row-medium {
-    background-color: #e7f3ff;
-}
-.intervention-row-low {
-    background-color: #e6f7e6;
-}
-</style>
 
 <script>
 // Load upcoming interventions widget

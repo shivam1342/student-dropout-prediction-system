@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from app.controllers import data_controller
 from app.controllers.alert_controller import AlertController
-from app.models import Student, Alert, Intervention, LMSActivity, BehavioralData, GamificationProfile
+from app.models import Student, Alert, Intervention, LMSActivity, BehavioralData, GamificationProfile, Teacher
 from app.controllers.gamification_controller import GamificationController
 from app.extensions import db
 from sqlalchemy import desc
@@ -14,22 +14,52 @@ from datetime import datetime
 
 student_bp = Blueprint('student_bp', __name__)
 
+
+def _normalize_event_date(value):
+    """Return a datetime from supported date inputs, or None when invalid."""
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str) and value:
+        try:
+            return datetime.fromisoformat(value.replace('Z', '+00:00'))
+        except ValueError:
+            return None
+    return None
+
+
+def _format_event_date(value):
+    """Return a timeline-friendly date string from mixed input types."""
+    normalized = _normalize_event_date(value)
+    return normalized.strftime('%Y-%m-%d %H:%M') if normalized else 'N/A'
+
+
+def _teacher_has_student_access(user, student_id):
+    """Return True when teacher is actively assigned to the student."""
+    if not user.is_teacher or not user.teacher_profile:
+        return False
+
+    return TeacherStudentAssignment.query.filter_by(
+        teacher_id=user.teacher_profile.id,
+        student_id=student_id,
+        is_active=True,
+    ).first() is not None
+
 @student_bp.route('/')
 @login_required
 def list_students():
     """Display a list of all students."""
     students = data_controller.get_all_students()
-    return render_template('students.html', students=students)
+    teachers = Teacher.query.order_by(Teacher.created_at.desc()).all() if current_user.is_admin else []
+    return render_template('students.html', students=students, teachers=teachers)
 
 @student_bp.route('/<int:student_id>')
 @login_required
 def student_profile(student_id):
     """Display enhanced student profile with multi-tab interface."""
-    # Security: Students can only view their own profile
-    if current_user.is_student:
-        if not current_user.student_profile or current_user.student_profile.id != student_id:
-            flash('You can only view your own profile.', 'danger')
-            return redirect(url_for('student_bp.student_profile', student_id=current_user.student_profile.id))
+    # Security: Only teachers and admins can access detailed student profile tabs.
+    if not (current_user.is_teacher or current_user.is_admin):
+        flash('Only teachers or administrators can view student profiles.', 'danger')
+        return redirect(url_for('auth_bp.student_dashboard'))
     
     student = data_controller.get_student_by_id(student_id)
     
@@ -101,8 +131,15 @@ def student_profile(student_id):
                 'color': 'success'
             })
     
+    def _timeline_sort_date(event):
+        """Normalize timeline date values so mixed types can be sorted safely."""
+        return _normalize_event_date(event.get('date')) or datetime.min
+
     # Sort timeline by date (most recent first)
-    timeline_events.sort(key=lambda x: x['date'] if x['date'] else '', reverse=True)
+    timeline_events.sort(key=_timeline_sort_date, reverse=True)
+
+    for event in timeline_events:
+        event['display_date'] = _format_event_date(event.get('date'))
     
     return render_template('student_profile.html',
                          student=student,
@@ -192,6 +229,10 @@ def edit_student(student_id):
     if not (current_user.is_teacher or current_user.is_admin):
         flash('Only teachers and administrators can edit student information.', 'danger')
         return redirect(url_for('student_bp.student_profile', student_id=student_id))
+
+    if current_user.is_teacher and not _teacher_has_student_access(current_user, student_id):
+        flash('You can only edit students assigned to you.', 'danger')
+        return redirect(url_for('auth_bp.teacher_dashboard'))
     
     student = data_controller.get_student_by_id(student_id)
     if request.method == 'POST':
