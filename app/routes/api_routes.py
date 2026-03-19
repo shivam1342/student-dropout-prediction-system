@@ -4,9 +4,10 @@ Provides REST endpoints for predictions and chatbot.
 """
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
-from app.controllers import prediction_controller, chatbot_controller
+from app.controllers import prediction_controller
 from app.models import Student, RiskPrediction, TeacherStudentAssignment
 from app.extensions import db
+from app.services.chatbot import chatbot_reply_from_user
 
 api_bp = Blueprint('api_bp', __name__)
 
@@ -99,6 +100,6 @@ def chat():
     user_message = payload.get('message')
     if not user_message:
         return jsonify({'error': 'Message cannot be empty'}), 400
-    
-    bot_response = chatbot_controller.get_bot_response(user_message)
+
+    bot_response = chatbot_reply_from_user(user_message, current_user)
     return jsonify({'response': bot_response})
