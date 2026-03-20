@@ -8,7 +8,7 @@ from app.services.chatbot.config import EMBEDDING_MODEL, CHROMA_PERSIST_DIR
 
 
 def _build_embeddings():
-    from langchain_community.embeddings import HuggingFaceEmbeddings
+    from langchain_huggingface import HuggingFaceEmbeddings
 
     return HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
 
@@ -20,7 +20,7 @@ def create_vector_store(
 ):
     """Create a persisted Chroma vector store for the current retrieval call."""
     import chromadb
-    from langchain_community.vectorstores import Chroma
+    from langchain_chroma import Chroma
 
     os.makedirs(CHROMA_PERSIST_DIR, exist_ok=True)
     embeddings = _build_embeddings()

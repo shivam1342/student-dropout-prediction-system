@@ -1,7 +1,7 @@
 """Configuration for chatbot service."""
 import os
 
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama3-8b-8192")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 GROQ_TEMPERATURE = float(os.getenv("GROQ_TEMPERATURE", "0.3"))
 CHATBOT_TOP_K = int(os.getenv("CHATBOT_TOP_K", "3"))
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
