@@ -259,6 +259,16 @@ def _assigned_teacher_names(student_id: int) -> List[str]:
     return unique_names
 
 
+def _mentor_summary(user: User) -> str:
+    if not user or not user.student_profile:
+        return "I could not find your student profile yet."
+
+    mentor_names = _assigned_teacher_names(user.student_profile.id)
+    if mentor_names:
+        return "Your assigned mentor/teacher(s): " + ", ".join(mentor_names) + "."
+    return "You do not have an active assigned mentor yet. Please contact admin/teacher management for assignment."
+
+
 def _escalate_crisis_alert(user: User, query: str) -> bool:
     """Create an urgent safety alert and attach teacher context for staff follow-up."""
     if not user or not user.student_profile:
@@ -354,8 +364,16 @@ def _quick_intent_reply(query: str, user: User) -> Optional[str]:
     if any(x in q for x in ["hello", "hi", "hey", "how are you"]):
         return "Hi, I am here for you. I can help with your profile summary, risk details, study planning, and support guidance."
 
-    if any(x in q for x in ["my information", "my info", "about my information", "my profile", "about me"]):
+    if any(x in q for x in [
+        "my information", "my info", "about my information", "my profile", "about me",
+        "my details", "what are my details", "show my details", "my data"
+    ]):
         return _format_user_profile(user)
+
+    if any(x in q for x in [
+        "my mentor", "about my mentor", "who is my mentor", "my teacher", "assigned teacher"
+    ]):
+        return _mentor_summary(user)
 
     if any(x in q for x in ["weak topic", "weak topics", "where am i weak", "where i am weak", "my weak areas"]):
         topics = _infer_weak_topics(user)
@@ -372,6 +390,15 @@ def _quick_intent_reply(query: str, user: User) -> Optional[str]:
 
     if any(x in q for x in ["study plan for a month", "monthly study plan", "plan for a month", "month study plan"]):
         return _monthly_study_plan(user)
+
+    if any(x in q for x in ["in points", "bullet points", "point wise", "point-wise"]):
+        # Handle conversational follow-ups like "give me that in points".
+        if any(x in q for x in ["month", "study", "exam", "plan", "that", "same", "again", "it"]):
+            return _monthly_study_plan(user)
+        topics = _infer_weak_topics(user)
+        if topics:
+            return "Your likely weak areas (point-wise):\n- " + "\n- ".join(topics)
+        return "I can provide point-wise guidance. Tell me if you want a monthly study plan or weak-area analysis."
 
     if any(x in q for x in ["improve my grades", "how to improve", "improve performance", "improve my score"]):
         topics = _infer_weak_topics(user)

@@ -8,7 +8,7 @@ from app.models import Student, RiskPrediction, GamificationProfile
 from app.controllers.alert_controller import AlertController
 from app.controllers.intervention_controller import InterventionController
 from app.controllers.gamification_controller import GamificationController
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 import os
 import json
 
@@ -23,8 +23,27 @@ def dashboard():
 
     total_students = Student.query.count()
     
-    # Get students with high-risk predictions
-    high_risk_students = Student.query.join(RiskPrediction).filter(RiskPrediction.risk_category == 'High').count()
+    # Count students by their latest prediction only (prevents duplicate inflation).
+    latest_pred_subq = (
+        RiskPrediction.query
+        .with_entities(
+            RiskPrediction.student_id.label('student_id'),
+            func.max(RiskPrediction.prediction_date).label('latest_prediction_date'),
+        )
+        .group_by(RiskPrediction.student_id)
+        .subquery()
+    )
+
+    high_risk_students = (
+        RiskPrediction.query
+        .join(
+            latest_pred_subq,
+            (RiskPrediction.student_id == latest_pred_subq.c.student_id)
+            & (RiskPrediction.prediction_date == latest_pred_subq.c.latest_prediction_date),
+        )
+        .filter(RiskPrediction.risk_category == 'High')
+        .count()
+    )
     at_risk_percentage = (high_risk_students / total_students * 100) if total_students > 0 else 0
     at_risk_percentage = max(0, min(round(at_risk_percentage, 2), 100))
     
@@ -34,17 +53,26 @@ def dashboard():
     chart_data = [p.risk_score for p in risk_trend]
     
     # Top 5 high-risk students
-    top_high_risk = (
-        Student.query
-        .join(RiskPrediction)
+    top_high_risk_predictions = (
+        RiskPrediction.query
+        .join(
+            latest_pred_subq,
+            (RiskPrediction.student_id == latest_pred_subq.c.student_id)
+            & (RiskPrediction.prediction_date == latest_pred_subq.c.latest_prediction_date),
+        )
         .filter(RiskPrediction.risk_category == 'High')
         .order_by(desc(RiskPrediction.risk_score))
         .limit(5)
         .all()
     )
-    # Attach latest prediction to each student
-    for student in top_high_risk:
-        student.latest_prediction = RiskPrediction.query.filter_by(student_id=student.id).order_by(desc(RiskPrediction.prediction_date)).first()
+
+    top_high_risk = []
+    for prediction in top_high_risk_predictions:
+        student = Student.query.get(prediction.student_id)
+        if not student:
+            continue
+        student.latest_prediction = prediction
+        top_high_risk.append(student)
 
     # Get Alert Statistics
     alert_stats = AlertController.get_alert_statistics()

@@ -11,6 +11,16 @@ from sqlalchemy import desc
 
 gamification_bp = Blueprint('gamification_bp', __name__)
 
+_LEADERBOARD_SORT_COLUMNS = {
+    'all': GamificationProfile.total_points,
+    'academic': GamificationProfile.academic_points,
+    'attendance': GamificationProfile.attendance_points,
+    # participation/social are currently derived from engagement in this schema.
+    'participation': GamificationProfile.engagement_points,
+    'engagement': GamificationProfile.engagement_points,
+    'social': GamificationProfile.engagement_points,
+}
+
 @gamification_bp.route('/leaderboard')
 @login_required
 def leaderboard():
@@ -19,16 +29,12 @@ def leaderboard():
     limit = request.args.get('limit', 20, type=int)
     category = request.args.get('category', 'all')
     
-    # Get top students by total points
-    if category == 'all':
-        top_students = GamificationProfile.query.order_by(
-            desc(GamificationProfile.total_points)
-        ).limit(limit).all()
-    else:
-        # Sort by specific category points
-        top_students = GamificationProfile.query.order_by(
-            desc(getattr(GamificationProfile, f'{category}_points'))
-        ).limit(limit).all()
+    sort_column = _LEADERBOARD_SORT_COLUMNS.get(category, GamificationProfile.total_points)
+    if category not in _LEADERBOARD_SORT_COLUMNS:
+        category = 'all'
+
+    # Get top students by selected category (safe mapped columns only)
+    top_students = GamificationProfile.query.order_by(desc(sort_column)).limit(limit).all()
     
     # Get leaderboard statistics
     stats = GamificationController.get_leaderboard_statistics()
@@ -113,14 +119,8 @@ def leaderboard_api():
     limit = request.args.get('limit', 10, type=int)
     category = request.args.get('category', 'all')
     
-    if category == 'all':
-        profiles = GamificationProfile.query.order_by(
-            desc(GamificationProfile.total_points)
-        ).limit(limit).all()
-    else:
-        profiles = GamificationProfile.query.order_by(
-            desc(getattr(GamificationProfile, f'{category}_points'))
-        ).limit(limit).all()
+    sort_column = _LEADERBOARD_SORT_COLUMNS.get(category, GamificationProfile.total_points)
+    profiles = GamificationProfile.query.order_by(desc(sort_column)).limit(limit).all()
     
     leaderboard_data = []
     for i, profile in enumerate(profiles, 1):

@@ -431,6 +431,12 @@ body {
     top: -80px;
     border-radius: 50%;
     background: radial-gradient(circle at center, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04) 64%, transparent 70%);
+    pointer-events: none;
+}
+
+.app-hero-band > * {
+    position: relative;
+    z-index: 1;
 }
 
 .app-hero-kicker {
