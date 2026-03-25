@@ -124,12 +124,51 @@ flask seed-users
 python app/ml/train_model.py
 ```
 
-### 6. Run application
+### 6. Run application (local)
 ```bash
 python run.py
 ```
 
 Open http://127.0.0.1:5000
+
+### 7. Deploy on Railway (Docker)
+This repository is now deployment-ready for Railway with:
+- `Dockerfile`
+- `.dockerignore`
+- `railway.json`
+- `wsgi.py` (production app entry)
+
+Required Railway environment variables:
+```env
+SECRET_KEY=change-this
+DATABASE_URL=postgresql://...
+GROQ_API_KEY=...
+GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_TEMPERATURE=0.3
+```
+
+Alternative (if DATABASE_URL is not used):
+```env
+DB_USER=...
+DB_PASSWORD=...
+DB_HOST=...
+DB_PORT=5432
+DB_NAME=...
+```
+
+Recommended for persistent chatbot vector store:
+```env
+CHROMA_PERSIST_DIR=/data/chroma_db
+```
+Attach a Railway volume at `/data` if you want Chroma persistence across deploys.
+
+Deployment steps:
+1. Push this repo to GitHub.
+2. In Railway, create a new project from the GitHub repo.
+3. Railway auto-detects `Dockerfile` and builds the service.
+4. Add the environment variables in Railway project settings.
+5. Provision PostgreSQL in Railway (or use external Postgres) and wire DB vars.
+6. Trigger deploy; Railway injects `PORT` automatically.
 
 ## Default Role Notes
 - Student:

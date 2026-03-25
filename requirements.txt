@@ -57,4 +57,5 @@ langchain-chroma==0.1.4
 chromadb==0.5.23
 sentence-transformers==3.4.1
 groq==0.18.0
+gunicorn==22.0.0
 

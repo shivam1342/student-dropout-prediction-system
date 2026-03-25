@@ -1,0 +1,17 @@
+.git
+.gitignore
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite
+*.sqlite3
+.env
+.env.*
+instance/chroma_db/
+.pytest_cache/
+.mypy_cache/
+.vscode/
+.DS_Store
