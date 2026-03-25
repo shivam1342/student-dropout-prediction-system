@@ -31,8 +31,9 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4 text-center mb-3">
+                            {% set capped_risk = [latest_prediction.risk_score, 100]|min %}
                             <h1 class="display-3 {% if latest_prediction.risk_category == 'High' %}text-danger{% elif latest_prediction.risk_category == 'Medium' %}text-warning{% else %}text-success{% endif %}">
-                                {{ latest_prediction.risk_score }}%
+                                {{ capped_risk }}%
                             </h1>
                             <h5 class="text-muted">Risk Score</h5>
                         </div>
@@ -237,9 +238,6 @@
                     <div class="d-grid gap-2">
                         <a href="{{ url_for('main_bp.chatbot_page') }}" class="btn auth-btn-primary btn-lg">
                             <i class="fas fa-comments me-2"></i>Chat with AI Assistant
-                        </a>
-                        <a href="{{ url_for('counselling_bp.dashboard') }}" class="btn app-btn-info btn-lg">
-                            <i class="fas fa-heart-pulse me-2"></i>Request Counselling
                         </a>
                         <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn app-btn-success btn-lg">
                             <i class="fas fa-trophy me-2"></i>View Leaderboard

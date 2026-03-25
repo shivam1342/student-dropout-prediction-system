@@ -141,7 +141,7 @@
                                     </td>
                                     <td>{{ item.student.email }}</td>
                                     <td>
-                                        <span class="badge bg-danger">{{ item.prediction.risk_score }}%</span>
+                                        <span class="badge bg-danger">{{ [item.prediction.risk_score, 100]|min }}%</span>
                                     </td>
                                     <td>
                                         <span class="badge bg-danger">{{ item.prediction.risk_category }}</span>

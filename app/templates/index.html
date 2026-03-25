@@ -47,7 +47,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-uppercase mb-1 app-kpi-label">At-Risk Percentage</div>
-                        <div class="h5 mb-0 font-weight-bold app-kpi-value">{{ stats.at_risk_percentage }}%</div>
+                        <div class="h5 mb-0 font-weight-bold app-kpi-value">{{ [stats.at_risk_percentage, 100]|min }}%</div>
                     </div>
                     <div class="col-auto app-kpi-icon">
                         <i class="fas fa-exclamation-triangle fa-2x"></i>
@@ -261,7 +261,8 @@
                                 <td>{{ student.name }}</td>
                                 <td>
                                     <div class="progress">
-                                        <div class="progress-bar bg-danger progress-bar-dynamic" role="progressbar" data-width="{{ student.latest_prediction.risk_score }}" aria-valuenow="{{ student.latest_prediction.risk_score }}" aria-valuemin="0" aria-valuemax="100">{{ student.latest_prediction.risk_score }}%</div>
+                                        {% set capped_risk = [student.latest_prediction.risk_score, 100]|min %}
+                                        <div class="progress-bar bg-danger progress-bar-dynamic" role="progressbar" data-width="{{ capped_risk }}" aria-valuenow="{{ capped_risk }}" aria-valuemin="0" aria-valuemax="100">{{ capped_risk }}%</div>
                                     </div>
                                 </td>
                                 <td><a href="{{ url_for('student_bp.student_profile', student_id=student.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
@@ -293,7 +294,13 @@
                     <div class="col-md-3 mb-3">
                         <a href="{{ url_for('student_bp.list_students') }}" class="btn auth-btn-primary btn-block">
                             <i class="fas fa-users fa-2x mb-2 d-block"></i>
-                            <span class="d-block">View All Students</span>
+                            <span class="d-block">User Management</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('auth_bp.register', role='teacher') }}" class="btn app-btn-secondary-soft btn-block">
+                            <i class="fas fa-user-plus fa-2x mb-2 d-block"></i>
+                            <span class="d-block">Add Teacher</span>
                         </a>
                     </div>
                     <div class="col-md-3 mb-3">

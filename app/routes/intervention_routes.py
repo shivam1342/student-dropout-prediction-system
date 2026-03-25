@@ -25,6 +25,26 @@ def _get_assignee_candidates():
         User.role.in_(['teacher', 'admin', 'counselor'])
     ).order_by(User.full_name).all()
 
+
+def _get_alert_queue_entries():
+    """Return one active alert per student, ordered by alert creation time (newest first)."""
+    active_alerts = (
+        Alert.query
+        .filter(Alert.status == 'Active')
+        .order_by(Alert.created_at.desc())
+        .all()
+    )
+
+    queue_entries = []
+    seen_students = set()
+    for alert in active_alerts:
+        if alert.student_id in seen_students:
+            continue
+        queue_entries.append(alert)
+        seen_students.add(alert.student_id)
+
+    return queue_entries
+
 @intervention_bp.route('/')
 @login_required
 def interventions_list():
@@ -54,8 +74,9 @@ def interventions_list():
     # Get statistics
     stats = InterventionController.get_intervention_statistics()
     
-    # Get all students for filter dropdown
-    students = Student.query.order_by(Student.name).all()
+    # Show only students currently in active alert queue (ordered by alert time)
+    alert_queue = _get_alert_queue_entries()
+    students = [entry.student for entry in alert_queue if entry.student]
     
     return render_template('interventions_list.html',
                          interventions=interventions,
@@ -84,6 +105,17 @@ def create_intervention():
             description = request.form.get('description')
             assigned_to = request.form.get('assigned_to')
 
+            # Use alert queue source-of-truth: student must currently have an active alert.
+            queue_alert = (
+                Alert.query
+                .filter_by(student_id=int(student_id), status='Active')
+                .order_by(Alert.created_at.desc())
+                .first()
+            )
+            if not queue_alert:
+                flash('Selected student has no active alert in intervention queue.', 'warning')
+                return redirect(url_for('intervention_bp.create_intervention'))
+
             if current_user.is_teacher:
                 assigned_to = current_user.full_name
             elif not assigned_to:
@@ -99,8 +131,18 @@ def create_intervention():
                 priority=priority,
                 description=description,
                 scheduled_date=scheduled_date,
-                assigned_to=assigned_to
+                assigned_to=assigned_to,
+                alert_id=queue_alert.id
             )
+
+            # Remove student from active alert entries after intervention creation.
+            active_student_alerts = Alert.query.filter_by(student_id=int(student_id), status='Active').all()
+            for alert in active_student_alerts:
+                alert.status = 'Acknowledged'
+                alert.acknowledged_at = datetime.utcnow()
+                alert.acknowledged_by = assigned_to
+                alert.action_taken = f'Intervention created: {intervention.title}'
+            db.session.commit()
             
             flash(f'Intervention created successfully for {intervention.student.name}', 'success')
             return redirect(url_for('intervention_bp.intervention_detail', intervention_id=intervention.id))
@@ -110,11 +152,13 @@ def create_intervention():
             return redirect(url_for('intervention_bp.create_intervention'))
     
     # GET request - show form
-    students = Student.query.order_by(Student.name).all()
+    alert_queue = _get_alert_queue_entries()
+    students = [entry.student for entry in alert_queue if entry.student]
     preselected_student_id = request.args.get('student_id', type=int)
     return render_template(
         'intervention_form.html',
         students=students,
+        alert_queue=alert_queue,
         intervention=None,
         assignees=_get_assignee_candidates(),
         preselected_student_id=preselected_student_id,
@@ -156,6 +200,13 @@ def create_from_alert(alert_id):
                 assigned_to=assigned_to,
                 alert_id=alert.id
             )
+
+            if alert.status == 'Active':
+                alert.status = 'Acknowledged'
+                alert.acknowledged_at = datetime.utcnow()
+                alert.acknowledged_by = assigned_to
+                alert.action_taken = f'Intervention created: {intervention.title}'
+                db.session.commit()
             
             flash(f'Intervention created from alert for {alert.student.name}', 'success')
             return redirect(url_for('intervention_bp.intervention_detail', intervention_id=intervention.id))

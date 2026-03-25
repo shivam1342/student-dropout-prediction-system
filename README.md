@@ -1,289 +1,170 @@
-# EduCare - Intelligent Dropout Prediction and Counselling System
+# EduCare - AI-Based Dropout Prediction and Counselling System
 
-## Project Overview
-A comprehensive AI-powered Flask web application that predicts student dropout risk using machine learning, provides automated counselling recommendations, real-time alerts, gamification features, and intervention tracking to improve student retention rates and engagement.
+## Overview
+EduCare is a Flask web application for early dropout-risk identification and guided intervention support.
+It combines role-based workflows (admin, teacher, student), ML prediction, alerting, counselling, interventions, gamification, and a student-scoped chatbot.
 
-## ✨ Key Features
+## Current Status
+- Core app architecture is modularized (routes, controllers, services, repositories, models).
+- Authentication and role-based access control are active.
+- Student, teacher, and admin dashboards are available.
+- Prediction flow is persisted and explainable (SHAP/LIME metadata).
+- Alert, intervention, counselling, and gamification modules are integrated.
+- Chatbot has been migrated to a service-layer RAG scaffold with Chroma.
 
-### Core Features (Original)
-- 🎯 **Dropout Risk Prediction**: ML-powered prediction with 84%+ accuracy
-- 👨‍🎓 **Student Management**: Complete CRUD operations for student records
-- 📊 **Interactive Dashboard**: Real-time analytics and visualizations
-- 🤖 **AI Chatbot**: Automated student support and guidance
-- 💡 **Counselling System**: Intelligent recommendation engine
-- 🔍 **Explainable AI**: SHAP-based feature importance analysis
+## Major Features
 
-### ✨ Advanced Features (EduCare Enhancement - Phase 1)
-- 🚨 **Real-Time Alert System**: Automated early warning system with multi-dimensional checks
-  - Academic performance monitoring
-  - Financial status tracking
-  - Behavioral indicators
-  - LMS engagement analysis
-  - Dropout risk alerts
-  
-- 🎮 **Gamification System**: Boost student motivation and engagement
-  - Points system (4 categories)
-  - Level progression
-  - 8 predefined badges
-  - Attendance & submission streaks
-  - Leaderboards
-  - Custom challenges
-  
-- 🩺 **Intervention Management**: Track support services and measure effectiveness
-  - Create interventions from alerts
-  - Schedule and assign to counsellors
-  - Record outcomes with ratings
-  - Follow-up tracking
-  - Statistics dashboard
-  
-- 📈 **Multi-Modal Data Tracking**: Comprehensive student monitoring
-  - LMS activity (logins, submissions, forum posts, video watch time)
-  - Behavioral data (attendance, participation, timeliness)
-  - Social indicators (peer interaction, mentor meetings)
-  - Psychological indicators (stress, motivation, confidence)
+### 1. Prediction and Explainability
+- Dropout risk prediction from student profile signals.
+- Stored predictions with category and top contributing factors.
+- Explainability outputs include SHAP/LIME details.
 
-## Technology Stack
-- **Backend**: Flask 3.0.0, SQLAlchemy 2.0.23
-- **Database**: PostgreSQL 17.6
-- **ML/AI**: scikit-learn 1.3.2, SHAP 0.41.0
-- **Frontend**: HTML5, CSS3, Bootstrap 5, Chart.js
-- **Data Processing**: pandas 2.1.3, numpy 1.26.2
+### 2. Alerts and Interventions
+- Alert generation and de-duplication safeguards.
+- Intervention creation and assignment workflow.
+- Teacher/admin access controls for student detail and intervention-related operations.
 
-## Project Structure
-```
+### 3. Counselling and Gamification
+- Counselling request and counselling log support.
+- Gamification profile, points, badges, and leaderboard views.
+
+### 4. Chatbot (Current Architecture)
+- Chat endpoint support:
+   - POST /chat (frontend compatibility route)
+   - POST /api/chatbot (API route, student-only)
+- Service-layer chatbot pipeline under app/services/chatbot.
+- Student-scoped RAG context built from profile, risk, alerts, interventions, and counselling logs.
+- Chroma persistence configured to instance/chroma_db.
+- Quick-intent handling includes profile, risk, weak topics, monthly plan, and crisis-first routing.
+
+## Tech Stack
+- Backend: Flask 3.0.0, Flask-Login, SQLAlchemy 2.0.23
+- Database: PostgreSQL
+- ML/Data: scikit-learn, SHAP, pandas, numpy
+- Frontend: Jinja templates, Bootstrap 5, Chart.js
+- RAG/LLM: LangChain 0.3.x, Chroma, sentence-transformers, Groq
+
+## Repository Structure (Current)
+```text
 capstone/
-│
-├── app.py                      # Main application entry point
-├── config.py                   # Configuration management
-├── extensions.py               # Flask extensions
-├── requirements.txt            # Python dependencies
-├── dataset.csv                # Training dataset
-│
-├── controllers/                # Business logic layer
-│   ├── chatbot_controller.py
-│   ├── counselling_controller.py
-│   ├── data_controller.py
-│   ├── prediction_controller.py
-│   ├── db_utils.py
-│   ├── alert_controller.py         # ✨ Alert generation & management
-│   ├── gamification_controller.py  # ✨ Points, badges, streaks
-│   └── intervention_controller.py  # ✨ Intervention management
-│
-├── models/                     # Database models (ORM)
-│   ├── __init__.py
-│   ├── student.py              # Student model
-│   ├── risk_prediction.py      # Risk prediction model
-│   ├── counselling_log.py      # Counselling log model
-│   ├── lms_activity.py         # ✨ LMS engagement tracking
-│   ├── behavioral_data.py      # ✨ Behavioral/psychological indicators
-│   ├── alert.py                # ✨ Real-time alert system
-│   ├── intervention.py         # ✨ Intervention tracking
-│   └── gamification.py         # ✨ Gamification profiles
-│
-├── routes/                     # API endpoints & views
-│   ├── main_routes.py
-│   ├── student_routes.py
-│   ├── api_routes.py
-│   ├── counselling_routes.py
-│   └── favicon_routes.py
-│
-├── ml/                         # Machine learning components
-│   ├── model.pkl
-│   └── train_model.py
-│
-├── static/                     # Static assets
-│   ├── css/
-│   ├── js/
-│   └── images/
-│
-└── templates/                  # HTML templates
-    ├── layout.html
-    ├── index.html
-    ├── students.html
-    ├── student_form.html
-    ├── student_profile.html
-    ├── counselling.html
-    ├── chatbot.html
-    └── about.html
+|-- run.py
+|-- requirements.txt
+|-- dataset.csv
+|-- app/
+|   |-- __init__.py
+|   |-- config.py
+|   |-- controllers/
+|   |-- routes/
+|   |-- services/
+|   |   |-- chatbot/
+|   |-- repositories/
+|   |-- models/
+|   |-- ml/
+|   |-- templates/
+|   |-- static/
+|-- scripts/
+|   |-- functional_smoke_test.py
+|   |-- functional_policy_checks.py
+|   |-- functional_prediction_checks.py
+|-- docs/
+|-- instance/
 ```
 
-## Installation
+## Setup
 
 ### Prerequisites
-- Python 3.12+
-- PostgreSQL 12+
-- pip (Python package manager)
+- Python 3.11+
+- PostgreSQL
 
-### Setup Steps
-
-1. **Clone the repository**
-   ```bash
-   cd capstone
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate  # Windows
-   source venv/bin/activate  # Linux/Mac
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment**
-   Create `.env` file in the root directory:
-   ```env
-   DB_USER=postgres
-   DB_PASSWORD=your_password
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=student_counselling_db
-   SECRET_KEY=your-secret-key-here
-   ```
-
-5. **Setup database**
-   ```bash
-   # Create PostgreSQL database
-   createdb student_counselling_db
-   
-   # Initialize tables
-   set FLASK_APP=app.py
-   flask db-create
-   
-   # Seed sample data
-   flask seed-db
-   ```
-
-6. **Train ML model**
-   ```bash
-   python ml/train_model.py
-   ```
-
-7. **Run the application**
-   ```bash
-   python app.py
-   ```
-
-Visit `http://localhost:5000` in your browser.
-
-## Usage
-
-### Dashboard
-- View overall student statistics
-- Monitor risk trends and patterns
-- Identify high-risk students requiring intervention
-
-### Student Management
-- Add new student records
-- Update existing information
-- View detailed student profiles
-- Delete student records
-
-### Risk Prediction
-- Generate dropout risk predictions
-- View feature importance analysis
-- Access personalized recommendations
-
-### Counselling Interface
-- Review high-risk students
-- Access automated intervention recommendations
-- Track counselling activities
-
-### AI Chatbot
-- Interactive student support
-- Academic guidance
-- Resource information
-
-## Machine Learning Model
-
-- **Algorithm**: Random Forest Classifier
-- **Accuracy**: ~84.6%
-- **Features**: 8 key predictors
-  - Age at enrollment
-  - Previous qualification
-  - Scholarship holder status
-  - Debtor status
-  - Tuition fees status
-  - 1st semester grades
-  - 2nd semester grades
-  - GDP indicator
-
-- **Risk Categories**:
-  - Low: < 40%
-  - Medium: 40% - 70%
-  - High: > 70%
-
-## API Endpoints
-
-### Student Routes
-- `GET /students/` - List all students
-- `GET /students/<id>` - View student profile
-- `POST /students/add` - Add new student
-- `POST /students/edit/<id>` - Update student
-- `POST /students/delete/<id>` - Delete student
-
-### API Routes
-- `POST /api/predict/<student_id>` - Generate risk prediction
-- `POST /api/chatbot` - Chatbot interaction
-
-### Counselling Routes
-- `GET /counselling/` - View counselling dashboard
-
-## Development
-
-### Running in Development Mode
+### 1. Create and activate virtual environment
 ```bash
-set FLASK_ENV=development
-python app.py
+python -m venv venv
+venv\Scripts\activate
 ```
 
-### Running in Production Mode
+### 2. Install dependencies
 ```bash
-set FLASK_ENV=production
-python app.py
+pip install -r requirements.txt
 ```
 
-## Database Schema
+### 3. Configure environment variables
+Create a .env file in project root:
 
-### Students Table
-- Personal information
-- Academic records
-- Financial status
-- Enrollment details
+```env
+SECRET_KEY=change-this
 
-### Risk Predictions Table
-- Prediction scores
-- Risk categories
-- Top contributing features
-- Prediction timestamps
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=student_counselling_db
 
-### Counselling Logs Table
-- Intervention types
-- Recommendations
-- Status tracking
-- Counsellor notes
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_TEMPERATURE=0.3
 
-## Security Considerations
-- Environment-based configuration
-- SQL injection protection via ORM
-- Session management
-- Input validation
+CHROMA_PERSIST_DIR=instance/chroma_db
+CHROMA_COLLECTION_PREFIX=student_chatbot
+```
 
-## Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+Notes:
+- If GROQ_MODEL is unset, the app default is llama-3.3-70b-versatile.
+- Chatbot retrieval data is persisted under instance/chroma_db.
+
+### 4. Create database and seed data
+```bash
+set FLASK_APP=run.py
+flask db-create
+flask seed-db
+flask seed-users
+```
+
+### 5. Train ML model (if needed)
+```bash
+python app/ml/train_model.py
+```
+
+### 6. Run application
+```bash
+python run.py
+```
+
+Open http://127.0.0.1:5000
+
+## Default Role Notes
+- Student:
+   - Can access own dashboard and own prediction data.
+   - Can use chatbot endpoint.
+   - Cannot access other students' predictions or restricted pages.
+- Teacher:
+   - Can access teacher dashboard.
+   - Prediction access is limited to actively assigned students.
+- Admin/Counselor:
+   - Elevated access for management workflows.
+
+## Validation Scripts
+Run these after major changes:
+
+```bash
+python scripts/functional_smoke_test.py
+python scripts/functional_policy_checks.py
+python scripts/functional_prediction_checks.py
+```
+
+Latest known regression status in project notes:
+- Smoke: 22 passed
+- Policy: 5 passed
+- Prediction: 11 passed
+
+## API Endpoints (Key)
+- POST /api/predict/<student_id>
+- POST /api/chatbot
+- POST /chat
+
+## Known Next Enhancements
+- Crisis escalation workflow: notify assigned teacher for dangerous intent.
+- Continue chatbot quality improvements for richer personalized guidance.
+- Complete final deployment documentation and evaluator checklist.
 
 ## License
-This project is for educational purposes.
-
-## Contact & Support
-For questions and support, please contact the development team.
-
----
-**Developed as part of AI-Based Student Support Systems Initiative**
+Educational project.

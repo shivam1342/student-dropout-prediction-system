@@ -10,15 +10,6 @@
         <i class="fas fa-user-graduate"></i> {{ student.name }}'s Profile
     </h1>
     <div>
-        {% if current_user.is_student and current_user.student_profile and current_user.student_profile.id == student.id %}
-            <!-- Student can request counselling for themselves -->
-            <form action="{{ url_for('student_bp.request_counselling', student_id=student.id) }}" method="POST" style="display: inline;">
-                <button type="submit" class="btn app-btn-info">
-                    <i class="fas fa-heart-pulse"></i> Request Counselling
-                </button>
-            </form>
-        {% endif %}
-        
         {% if current_user.is_teacher or current_user.is_admin %}
             <!-- Teachers and admins can edit -->
             <a href="{{ url_for('student_bp.edit_student', student_id=student.id) }}" class="btn app-btn-warn">
@@ -44,7 +35,8 @@
                     <div class="col">
                         <h5 class="mb-1">Dropout Risk Analysis</h5>
                         {% if student.latest_prediction %}
-                            <h2 class="mb-0">{{ student.latest_prediction.risk_score }}%
+                            {% set capped_risk = [student.latest_prediction.risk_score, 100]|min %}
+                            <h2 class="mb-0">{{ capped_risk }}%
                                 <span class="badge badge-{{ 'danger' if student.latest_prediction.risk_category == 'High' else ('warning' if student.latest_prediction.risk_category == 'Medium' else 'success') }}">
                                     {{ student.latest_prediction.risk_category }} Risk
                                 </span>
@@ -52,11 +44,11 @@
                             <div class="progress mt-2" style="height: 20px;">
                                 <div class="progress-bar bg-{{ 'danger' if student.latest_prediction.risk_category == 'High' else ('warning' if student.latest_prediction.risk_category == 'Medium' else 'success') }}" 
                                      role="progressbar" 
-                                     style="width: {{ student.latest_prediction.risk_score }}%"
-                                     aria-valuenow="{{ student.latest_prediction.risk_score }}" 
+                                     style="width: {{ capped_risk }}%"
+                                     aria-valuenow="{{ capped_risk }}" 
                                      aria-valuemin="0" 
                                      aria-valuemax="100">
-                                    {{ student.latest_prediction.risk_score }}%
+                                    {{ capped_risk }}%
                                 </div>
                             </div>
                         {% else %}

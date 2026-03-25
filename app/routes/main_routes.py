@@ -18,11 +18,15 @@ main_bp = Blueprint('main_bp', __name__)
 @login_required
 def dashboard():
     """Enhanced Dashboard with comprehensive stats from all modules."""
+    if current_user.is_student:
+        return redirect(url_for('auth_bp.student_dashboard'))
+
     total_students = Student.query.count()
     
     # Get students with high-risk predictions
     high_risk_students = Student.query.join(RiskPrediction).filter(RiskPrediction.risk_category == 'High').count()
     at_risk_percentage = (high_risk_students / total_students * 100) if total_students > 0 else 0
+    at_risk_percentage = max(0, min(round(at_risk_percentage, 2), 100))
     
     # For chart data (simplified)
     risk_trend = RiskPrediction.query.order_by(RiskPrediction.prediction_date).limit(10).all()
@@ -60,7 +64,7 @@ def dashboard():
 
     stats = {
         'total_students': total_students,
-        'at_risk_percentage': round(at_risk_percentage, 2),
+        'at_risk_percentage': at_risk_percentage,
         'interventions_triggered': high_risk_students,
         'alerts': alert_stats,
         'interventions': intervention_stats,

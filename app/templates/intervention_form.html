@@ -44,6 +44,9 @@
                                    value="{{ alert.student.name if alert else intervention.student.name }}" 
                                    disabled>
                             {% else %}
+                            <small class="form-text text-muted d-block mb-2">
+                                Only students with active alerts are shown, ordered by latest alert time.
+                            </small>
                             <select class="form-select auth-input" id="student_id" name="student_id" required>
                                 <option value="">Select a student...</option>
                                 {% for student in students %}
@@ -52,6 +55,9 @@
                                 </option>
                                 {% endfor %}
                             </select>
+                            {% if not students %}
+                            <small class="form-text text-muted">No active-alert students are currently waiting for intervention.</small>
+                            {% endif %}
                             {% endif %}
                         </div>
 

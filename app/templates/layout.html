@@ -41,7 +41,7 @@
                     <!-- Admin/Teacher/Counselor Only -->
                     {% if current_user.is_teacher or current_user.is_admin or current_user.role == 'counselor' %}
                     <li class="nav-item">
-                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint and 'student_bp' in request.endpoint else '' }}" href="{{ url_for('student_bp.list_students') }}"><i class="fas fa-users me-1"></i> Students</a>
+                        <a class="nav-link app-nav-link {{ 'active' if request.endpoint and 'student_bp' in request.endpoint else '' }}" href="{{ url_for('student_bp.list_students') }}"><i class="fas fa-users me-1"></i> Users</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link app-nav-link {{ 'active' if request.endpoint and 'alert_bp' in request.endpoint else '' }}" href="{{ url_for('alert_bp.alerts_dashboard') }}"><i class="fas fa-bell me-1"></i> Alerts</a>

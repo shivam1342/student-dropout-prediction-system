@@ -59,8 +59,8 @@
                                 <i class="fas fa-user-tag me-1"></i>Role *
                             </label>
                             <select class="form-select auth-input" id="role" name="role" required>
-                                <option value="student" selected>Student</option>
-                                <option value="teacher">Teacher</option>
+                                <option value="student" {% if selected_role != 'teacher' %}selected{% endif %}>Student</option>
+                                <option value="teacher" {% if selected_role == 'teacher' %}selected{% endif %}>Teacher</option>
                             </select>
                         </div>
                         
@@ -105,15 +105,18 @@
 </div>
 
 <script>
+    function toggleTeacherFields(roleValue) {
+        const teacherFields = document.getElementById('teacherFields');
+        teacherFields.style.display = roleValue === 'teacher' ? 'block' : 'none';
+    }
+
     // Show/hide teacher fields based on role selection
     document.getElementById('role').addEventListener('change', function() {
-        const teacherFields = document.getElementById('teacherFields');
-        if (this.value === 'teacher') {
-            teacherFields.style.display = 'block';
-        } else {
-            teacherFields.style.display = 'none';
-        }
+        toggleTeacherFields(this.value);
     });
+
+    // Keep UI in sync when role is preselected from query params.
+    toggleTeacherFields(document.getElementById('role').value);
     
     // Password validation
     document.getElementById('registerForm').addEventListener('submit', function(e) {

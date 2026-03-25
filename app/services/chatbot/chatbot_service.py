@@ -3,8 +3,10 @@ from __future__ import annotations
 
 from typing import List, Tuple, Dict, Any, Optional
 import re
+from datetime import datetime, timedelta
 
-from app.models import Student, RiskPrediction, Alert, Intervention, CounsellingLog, User
+from app.models import Student, RiskPrediction, Alert, Intervention, CounsellingLog, User, TeacherStudentAssignment
+from app.extensions import db
 
 
 def _safe_float(value: Optional[float]) -> str:
@@ -14,6 +16,24 @@ def _safe_float(value: Optional[float]) -> str:
         return f"{float(value):.2f}"
     except Exception:
         return "N/A"
+
+
+def _humanize_factor_name(value: str) -> str:
+    """Convert model feature-like labels into user-friendly text."""
+    if not value:
+        return value
+    cleaned = value.replace("_", " ").strip()
+    aliases = {
+        "curricular units 1st sem grade": "Semester 1 performance",
+        "curricular units 2nd sem grade": "Semester 2 performance",
+        "tuition fees up to date": "Fee payment consistency",
+        "previous qualification": "Foundation preparedness",
+        "age at enrollment": "Adjustment support need",
+        "scholarship holder": "Scholarship stability",
+        "debtor": "Financial stress risk",
+    }
+    key = cleaned.lower()
+    return aliases.get(key, cleaned.title())
 
 
 def _build_student_chunks(user: User) -> Tuple[List[str], List[Dict[str, Any]]]:
@@ -99,7 +119,7 @@ def _fallback_reply(query: str) -> str:
         return "I hear you. Try a short breathing break, list one immediate task, and reach out to your mentor or counsellor if stress continues."
     if "study" in q or "exam" in q:
         return "Try a 45-minute study block with 10-minute breaks, prioritize weak topics first, and review with active recall."
-    return "I can help with study planning, risk factors, alerts, and intervention guidance. Tell me what you need support with."
+    return "I can help with weak-topic analysis, monthly study planning, risk explanation, and support guidance. Tell me your goal in one line."
 
 
 def _format_user_profile(user: User) -> str:
@@ -161,10 +181,34 @@ def _infer_weak_topics(user: User) -> List[str]:
         prediction.top_feature_2 if prediction else None,
         prediction.top_feature_3 if prediction else None,
     ]:
-        if feat and feat not in weak_topics:
-            weak_topics.append(str(feat))
+        nice = _humanize_factor_name(str(feat)) if feat else None
+        if nice and nice not in weak_topics:
+            weak_topics.append(nice)
 
     return weak_topics[:5]
+
+
+def _topic_actions(topic: str) -> List[str]:
+    t = (topic or "").lower()
+    if "semester 1" in t or "foundation" in t:
+        return [
+            "Rebuild key concepts using class notes + 10 practice questions daily.",
+            "Keep a mistake log and revise it every weekend.",
+        ]
+    if "semester 2" in t or "advanced" in t:
+        return [
+            "Practice mixed-difficulty problems 4 days per week.",
+            "Do one timed mini-test every 3 days.",
+        ]
+    if "financial" in t or "fee" in t:
+        return [
+            "Stabilize weekly study slots to reduce stress-driven inconsistency.",
+            "Reach out to advisor/counsellor for support options early.",
+        ]
+    return [
+        "Plan 45-minute focused blocks for this area at least 5 times/week.",
+        "Track progress with a simple score sheet after each session.",
+    ]
 
 
 def _monthly_study_plan(user: User) -> str:
@@ -192,6 +236,88 @@ def _monthly_study_plan(user: User) -> str:
     return "\n".join(lines)
 
 
+def _assigned_teacher_names(student_id: int) -> List[str]:
+    names: List[str] = []
+    assignments = TeacherStudentAssignment.query.filter_by(
+        student_id=student_id,
+        is_active=True,
+    ).all()
+    for assignment in assignments:
+        teacher = assignment.teacher
+        teacher_user = teacher.user_account if teacher else None
+        if teacher_user and teacher_user.full_name:
+            names.append(teacher_user.full_name)
+
+    # Preserve order while removing duplicates.
+    unique_names: List[str] = []
+    seen = set()
+    for name in names:
+        if name in seen:
+            continue
+        seen.add(name)
+        unique_names.append(name)
+    return unique_names
+
+
+def _escalate_crisis_alert(user: User, query: str) -> bool:
+    """Create an urgent safety alert and attach teacher context for staff follow-up."""
+    if not user or not user.student_profile:
+        return False
+
+    student = user.student_profile
+    now = datetime.utcnow()
+    dedupe_window_start = now - timedelta(minutes=30)
+
+    recent_same = (
+        Alert.query.filter_by(
+            student_id=student.id,
+            alert_type='Psychological',
+            severity='Critical',
+            title='Urgent Safety Escalation from Chatbot',
+            status='Active',
+        )
+        .filter(Alert.created_at >= dedupe_window_start)
+        .first()
+    )
+    if recent_same:
+        return False
+
+    teachers = _assigned_teacher_names(student.id)
+    teacher_note = (
+        f"Assigned teacher(s): {', '.join(teachers)}"
+        if teachers else
+        "Assigned teacher(s): none active"
+    )
+
+    try:
+        alert = Alert(
+            student_id=student.id,
+            alert_type='Psychological',
+            severity='Critical',
+            title='Urgent Safety Escalation from Chatbot',
+            description='Student message indicates potential self-harm or violence risk and needs immediate follow-up.',
+            trigger_factors={
+                'source': 'chatbot',
+                'message_excerpt': (query or '')[:500],
+            },
+            recommended_actions=[
+                'Contact assigned teacher/counselor immediately.',
+                'Perform urgent welfare check for student safety.',
+                'Escalate to emergency services if there is immediate danger.',
+            ],
+            status='Active',
+            action_taken='Auto-escalated by chatbot safety policy.',
+            notes=teacher_note,
+        )
+        db.session.add(alert)
+        db.session.commit()
+        return True
+    except Exception as exc:
+        db.session.rollback()
+        print(f"WARNING: Chatbot crisis escalation failed: {exc}")
+        return False
+
+
 def _quick_intent_reply(query: str, user: User) -> Optional[str]:
     q = (query or "").strip().lower()
     if not q:
@@ -203,17 +329,26 @@ def _quick_intent_reply(query: str, user: User) -> Optional[str]:
         r"\bsuicidal\b",
         r"\bsuicidal thoughts\b",
         r"\bkill myself\b",
+        r"\bkill me\b",
         r"\bend my life\b",
         r"\bself harm\b",
         r"\bself-harm\b",
         r"\bi want to die\b",
+        r"\bmurder\b",
+        r"\bhomicide\b",
+        r"\bkill someone\b",
+        r"\bhurt others\b",
+        r"\bharm others\b",
     ]
     if any(re.search(p, q) for p in crisis_patterns):
+        escalated = _escalate_crisis_alert(user, query)
+        escalation_line = " I have also alerted your assigned support staff for urgent follow-up." if escalated else ""
         return (
             "I am really glad you shared this. Your safety matters right now. "
             "Please contact local emergency services immediately if you are in danger, and reach out to a trusted person near you now. "
             "If you can, call a suicide crisis helpline in your country right away. "
             "I can also help you write a short message to ask someone for urgent support."
+            + escalation_line
         )
 
     if any(x in q for x in ["hello", "hi", "hey", "how are you"]):
@@ -226,10 +361,29 @@ def _quick_intent_reply(query: str, user: User) -> Optional[str]:
         topics = _infer_weak_topics(user)
         if not topics:
             return "From your current records, no strong weak-topic signal is available yet. I can still suggest a structured monthly plan if you want."
-        return "Based on your data, your likely weak areas are: " + ", ".join(topics) + "."
+        top = topics[0]
+        actions = _topic_actions(top)
+        return (
+            "Based on your data, your likely weak areas are: " + ", ".join(topics) + ".\n"
+            f"Start with {top}:\n"
+            f"- {actions[0]}\n"
+            f"- {actions[1]}"
+        )
 
     if any(x in q for x in ["study plan for a month", "monthly study plan", "plan for a month", "month study plan"]):
         return _monthly_study_plan(user)
+
+    if any(x in q for x in ["improve my grades", "how to improve", "improve performance", "improve my score"]):
+        topics = _infer_weak_topics(user)
+        focus = topics[0] if topics else "your weakest topic"
+        actions = _topic_actions(focus)
+        return (
+            "You can improve steadily with this focused routine:\n"
+            f"- Primary focus: {focus}\n"
+            f"- {actions[0]}\n"
+            f"- {actions[1]}\n"
+            "- Weekly check: compare your mistake count and timed-test score against last week."
+        )
 
     if any(x in q for x in ["risk", "risk factor", "prediction", "dropout"]):
         if not user or not user.student_profile:
@@ -271,8 +425,10 @@ def chatbot_reply_from_user(query: str, user: User) -> str:
         # RetrievalQA accepts dict input in invoke for modern LangChain versions.
         result = chain.invoke({"query": query})
         if isinstance(result, dict):
-            return result.get("result") or result.get("output_text") or _fallback_reply(query)
-        return str(result)
+            response = result.get("result") or result.get("output_text")
+            return response.strip() if isinstance(response, str) and response.strip() else _fallback_reply(query)
+        text = str(result).strip()
+        return text if text else _fallback_reply(query)
     except Exception as exc:
         print(f"WARNING: Chatbot RAG path failed, using fallback. Error: {exc}")
         return _fallback_reply(query)

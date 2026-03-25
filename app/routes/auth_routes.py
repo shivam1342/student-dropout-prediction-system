@@ -53,8 +53,12 @@ def logout():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     """Registration page"""
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and not current_user.is_admin:
         return redirect(url_for('main_bp.dashboard'))
+
+    selected_role = request.args.get('role', 'student')
+    if selected_role not in ['student', 'teacher']:
+        selected_role = 'student'
     
     if request.method == 'POST':
         username = request.form.get('username')
@@ -67,7 +71,7 @@ def register():
         # Validate passwords match
         if password != confirm_password:
             flash('Passwords do not match', 'danger')
-            return render_template('/register.html')
+            return render_template('auth/register.html', selected_role=selected_role)
         
         # Additional fields based on role
         kwargs = {}
@@ -85,7 +89,7 @@ def register():
         else:
             flash(message, 'danger')
     
-    return render_template('auth/register.html')
+    return render_template('auth/register.html', selected_role=selected_role)
 
 
 @auth_bp.route('/teacher/dashboard')
