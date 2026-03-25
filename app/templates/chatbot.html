@@ -262,9 +262,21 @@
 {% block content %}
 <div class="app-dashboard app-remodel-page">
 <div class="app-hero-band p-4 p-md-5 mb-4 app-slide-up">
-  <p class="app-hero-kicker mb-2">Student Support</p>
-  <h2 class="app-hero-title"><i class="fas fa-comments me-2"></i>Virtual Counsellor</h2>
-  <p class="mb-0">A guided chat experience designed for quick emotional support and early intervention cues.</p>
+  <div class="d-sm-flex align-items-center justify-content-between gap-3">
+    <div>
+      <p class="app-hero-kicker mb-2">Student Support</p>
+      <h2 class="app-hero-title"><i class="fas fa-comments me-2"></i>Virtual Counsellor</h2>
+      <p class="mb-0">A guided chat experience designed for quick emotional support and practical guidance.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('auth_bp.student_dashboard') }}" class="btn btn-sm app-btn-info mb-2 mb-sm-0">
+        <i class="fas fa-gauge-high"></i> Dashboard
+      </a>
+      <a href="{{ url_for('gamification_bp.leaderboard') }}" class="btn btn-sm app-btn-success mb-2 mb-sm-0">
+        <i class="fas fa-trophy"></i> Leaderboard
+      </a>
+    </div>
+  </div>
 </div>
 <div class="chat-container">
   <div class="chat-header">
